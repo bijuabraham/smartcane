@@ -91,10 +91,10 @@ export class SmartStickSimulator {
   generateDistanceData() {
     const baseDistance = 1500;
     
-    if (Math.random() > 0.95) {
+    if (Math.random() > 0.5) {
       this.state.obstacleNear = true;
       return Math.floor(300 + Math.random() * 400);
-    } else if (this.state.obstacleNear && Math.random() > 0.7) {
+    } else if (this.state.obstacleNear && Math.random() > 0.3) {
       this.state.obstacleNear = false;
     }
     
@@ -106,24 +106,24 @@ export class SmartStickSimulator {
   }
   
   checkForAlerts() {
-    if (Math.random() > 0.97 && !this.state.sosActive) {
+    if (Math.random() > 0.85 && !this.state.sosActive) {
       const alertType = Math.random();
       
-      if (alertType < 0.35) {
+      if (alertType < 0.25) {
         console.log('Simulating FALL alert');
         return {
           type: 'FALL',
           ts: Date.now(),
           ax: 15.5,
         };
-      } else if (alertType < 0.6 && this.state.obstacleNear) {
+      } else if (alertType < 0.7 && this.state.obstacleNear) {
         console.log('Simulating OBSTACLE alert');
         return {
           type: 'OBSTACLE',
           ts: Date.now(),
           dist_mm: 350,
         };
-      } else if (alertType < 0.85) {
+      } else if (alertType < 0.95) {
         const rfidId = 'RFID_' + Math.floor(Math.random() * 1000).toString().padStart(4, '0');
         this.state.lastRFID = rfidId;
         console.log('Simulating RFID scan:', rfidId);
