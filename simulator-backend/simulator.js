@@ -35,14 +35,20 @@ export class SmartStickSimulator {
     
     return {
       ts: Date.now(),
-      ax: accel.x,
-      ay: accel.y,
-      az: accel.z,
-      gx: gyro.x,
-      gy: gyro.y,
-      gz: gyro.z,
+      imu: {
+        ax: Math.round(accel.x * 100) / 100,
+        ay: Math.round(accel.y * 100) / 100,
+        az: Math.round(accel.z * 100) / 100,
+        gx: Math.round(gyro.x * 10) / 10,
+        gy: Math.round(gyro.y * 10) / 10,
+        gz: Math.round(gyro.z * 10) / 10,
+      },
       dist_mm: distance,
-      bat_pct: Math.round(this.state.battery),
+      rfid: this.state.lastRFID,
+      battery: {
+        v: Math.round((3.7 + (this.state.battery / 100) * 0.5) * 100) / 100,
+        pct: Math.round(this.state.battery),
+      },
     };
   }
   

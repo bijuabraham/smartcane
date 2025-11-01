@@ -19,12 +19,12 @@ export function useSmartStick() {
       deviceRef.current = new SmartStickSimulator();
     }
     
-    deviceRef.current.onSensorData = (data) => {
+    const handleSensorData = (data) => {
       setSensorData(data);
       setSensorHistory(prev => [...prev.slice(-50), data]);
     };
 
-    deviceRef.current.onAlert = (alert) => {
+    const handleAlert = (alert) => {
       setAlerts(prev => [...prev, { ...alert, timestamp: Date.now() }]);
       
       const eventType = alert.event || alert.type;
@@ -48,13 +48,18 @@ export function useSmartStick() {
           break;
       }
     };
-
+    
     if (mode === 'hardware') {
+      deviceRef.current.onSensorData = handleSensorData;
+      deviceRef.current.onAlert = handleAlert;
       deviceRef.current.onDisconnect = () => {
         setConnected(false);
         setSensorData(null);
         toast.error('Disconnected from Smart Stick');
       };
+    } else {
+      deviceRef.current.onSensorData(handleSensorData);
+      deviceRef.current.onAlert(handleAlert);
     }
 
     return () => {
