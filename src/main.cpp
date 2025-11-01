@@ -1,0 +1,278 @@
+#include <Arduino.h>
+#include <ArduinoJson.h>
+#include "pins.h"
+#include "config.h"
+#include "ble.h"
+#include "sensors.h"
+#include "fall_detection.h"
+#include "haptics.h"
+
+// ===================================================================
+// Global Configuration Instance
+// ===================================================================
+
+Config g_config;
+
+// ===================================================================
+// State Variables
+// ===================================================================
+
+static unsigned long last_sensor_update = 0;
+static unsigned long last_rfid_poll = 0;
+static unsigned long last_battery_read = 0;
+static unsigned long last_obstacle_alert = 0;
+
+static bool sos_button_last_state = HIGH;
+static unsigned long sos_button_debounce_time = 0;
+
+static bool rfid_alert_sent = false;
+static String last_rfid_uid = "";
+
+// ===================================================================
+// Setup
+// ===================================================================
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+  
+  Serial.println("\n\n=================================");
+  Serial.println("  Smart Walking Stick Firmware  ");
+  Serial.println("  ESP32-S3 + NimBLE              ");
+  Serial.println("=================================\n");
+  
+  pinMode(SOS_BTN, INPUT_PULLUP);
+  
+  haptics_init();
+  
+  haptics_led_set(true);
+  Serial.println("Initializing sensors...");
+  
+  if (!sensors_init()) {
+    Serial.println("ERROR: Sensor initialization failed!");
+    while (1) {
+      haptics_led_blink(100);
+      delay(500);
+    }
+  }
+  
+  fall_detection_init();
+  
+  Serial.println("Initializing BLE...");
+  ble_init();
+  
+  haptics_led_set(false);
+  
+  Serial.println("\nSetup complete! Ready to go.\n");
+  Serial.print("Sensor update period: ");
+  Serial.print(g_config.sensor_period_ms);
+  Serial.println(" ms");
+  Serial.print("Obstacle threshold: ");
+  Serial.print(g_config.obstacle_threshold_mm);
+  Serial.println(" mm");
+  Serial.print("Fall threshold: ");
+  Serial.print(g_config.fall_ax_threshold);
+  Serial.println(" g");
+}
+
+// ===================================================================
+// Loop
+// ===================================================================
+
+void loop() {
+  unsigned long now = millis();
+  
+  haptics_update();
+  ble_update();
+  
+  handle_sos_button(now);
+  
+  if (now - last_sensor_update >= g_config.sensor_period_ms) {
+    last_sensor_update = now;
+    update_sensors(now);
+  }
+  
+  if (now - last_rfid_poll >= RFID_POLL_PERIOD_MS) {
+    last_rfid_poll = now;
+    update_rfid(now);
+  }
+  
+  if (now - last_battery_read >= BATTERY_READ_PERIOD_MS) {
+    last_battery_read = now;
+  }
+  
+#ifdef LOW_POWER
+  if (LIGHT_SLEEP_ENABLED && !ble_is_connected()) {
+    uint32_t sleep_time = min(
+      g_config.sensor_period_ms - (now - last_sensor_update),
+      RFID_POLL_PERIOD_MS - (now - last_rfid_poll)
+    );
+    if (sleep_time > 10) {
+      esp_sleep_enable_timer_wakeup(sleep_time * 1000);
+      esp_light_sleep_start();
+    }
+  }
+#endif
+  
+  delay(10);
+}
+
+// ===================================================================
+// SOS Button Handler
+// ===================================================================
+
+void handle_sos_button(unsigned long now) {
+  bool current_state = digitalRead(SOS_BTN);
+  
+  if (current_state != sos_button_last_state) {
+    sos_button_debounce_time = now;
+  }
+  
+  if ((now - sos_button_debounce_time) > SOS_DEBOUNCE_MS) {
+    if (current_state == LOW && sos_button_last_state == HIGH) {
+      Serial.println("SOS BUTTON PRESSED!");
+      
+      haptics_trigger(HAPTIC_SOS);
+      
+      StaticJsonDocument<64> doc;
+      doc["event"] = "SOS_BUTTON_PRESSED";
+      
+      char json[64];
+      serializeJson(doc, json);
+      ble_send_alert(json);
+    }
+  }
+  
+  sos_button_last_state = current_state;
+}
+
+// ===================================================================
+// Update Sensors
+// ===================================================================
+
+void update_sensors(unsigned long now) {
+  IMUData imu = imu_read();
+  ToFData tof = tof_read();
+  BatteryData battery;
+  
+  if (now - last_battery_read >= BATTERY_READ_PERIOD_MS) {
+    battery = battery_read();
+  } else {
+    battery.valid = false;
+  }
+  
+  if (imu.valid) {
+    fall_detection_update(imu);
+    
+    float fall_ax, fall_ay, fall_az;
+    if (fall_detection_check(fall_ax, fall_ay, fall_az)) {
+      haptics_trigger(HAPTIC_FALL);
+      
+      StaticJsonDocument<128> doc;
+      doc["event"] = "FALL_DETECTED";
+      doc["severity"] = "high";
+      doc["ax"] = fall_ax;
+      doc["ay"] = fall_ay;
+      doc["az"] = fall_az;
+      
+      char json[128];
+      serializeJson(doc, json);
+      ble_send_alert(json);
+      
+      fall_detection_reset();
+    }
+  }
+  
+  if (tof.valid && tof.distance_mm > 0 && 
+      tof.distance_mm < g_config.obstacle_threshold_mm) {
+    if (now - last_obstacle_alert >= OBSTACLE_ALERT_COOLDOWN_MS) {
+      last_obstacle_alert = now;
+      
+      haptics_trigger(HAPTIC_OBSTACLE);
+      
+      StaticJsonDocument<64> doc;
+      doc["event"] = "OBSTACLE_NEAR";
+      doc["dist_mm"] = tof.distance_mm;
+      
+      char json[64];
+      serializeJson(doc, json);
+      ble_send_alert(json);
+    }
+  }
+  
+  send_sensor_data(imu, tof, battery, now);
+}
+
+// ===================================================================
+// Update RFID
+// ===================================================================
+
+void update_rfid(unsigned long now) {
+  RFIDData rfid = rfid_read();
+  
+  if (rfid.valid) {
+    String current_uid = String(rfid.uid);
+    
+    if (current_uid != last_rfid_uid && !rfid_alert_sent) {
+      haptics_trigger(HAPTIC_RFID);
+      
+      StaticJsonDocument<64> doc;
+      doc["event"] = "RFID_SEEN";
+      doc["uid"] = rfid.uid;
+      
+      char json[64];
+      serializeJson(doc, json);
+      ble_send_alert(json);
+      
+      rfid_alert_sent = true;
+      last_rfid_uid = current_uid;
+    }
+  } else {
+    if (last_rfid_uid != "") {
+      last_rfid_uid = "";
+      rfid_alert_sent = false;
+    }
+  }
+}
+
+// ===================================================================
+// Send Sensor Data via BLE
+// ===================================================================
+
+void send_sensor_data(const IMUData& imu, const ToFData& tof, 
+                     const BatteryData& battery, unsigned long now) {
+  StaticJsonDocument<256> doc;
+  
+  doc["ts"] = now;
+  
+  if (imu.valid) {
+    JsonObject imu_obj = doc.createNestedObject("imu");
+    imu_obj["ax"] = round(imu.ax * 100) / 100.0;
+    imu_obj["ay"] = round(imu.ay * 100) / 100.0;
+    imu_obj["az"] = round(imu.az * 100) / 100.0;
+    imu_obj["gx"] = round(imu.gx * 10) / 10.0;
+    imu_obj["gy"] = round(imu.gy * 10) / 10.0;
+    imu_obj["gz"] = round(imu.gz * 10) / 10.0;
+  }
+  
+  doc["dist_mm"] = tof.valid ? tof.distance_mm : -1;
+  
+  const char* uid = rfid_get_current_uid();
+  if (uid) {
+    doc["rfid"] = uid;
+  } else {
+    doc["rfid"] = nullptr;
+  }
+  
+#ifdef BATTERY_ADC
+  if (battery.valid) {
+    JsonObject batt_obj = doc.createNestedObject("battery");
+    batt_obj["v"] = round(battery.voltage * 100) / 100.0;
+    batt_obj["pct"] = battery.percentage;
+  }
+#endif
+  
+  char json[256];
+  serializeJson(doc, json);
+  ble_send_sensor_data(json);
+}

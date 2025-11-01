@@ -1,0 +1,41 @@
+# PlatformIO
+.pio/
+.vscode/
+.clang_complete
+.gcc-flags.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Arduino
+*.bin
+*.hex
+*.elf
+*.map
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+.*.swp
+
+# IDE
+*.sublime-*
+*.code-workspace
+
+# Build artifacts
+*.o
+*.a
+*.d
+
+# Logs
+*.log
