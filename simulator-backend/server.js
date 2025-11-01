@@ -19,10 +19,12 @@ wss.on('connection', (ws) => {
   console.log('Client connected to simulator');
   
   const simulator = new SmartStickSimulator();
+  let messageCount = 0;
   
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message.toString());
+      console.log('Received message:', data.type);
       
       if (data.type === 'getConfig') {
         ws.send(JSON.stringify({
@@ -45,6 +47,10 @@ wss.on('connection', (ws) => {
   
   const dataInterval = setInterval(() => {
     if (ws.readyState === ws.OPEN) {
+      messageCount++;
+      if (messageCount % 25 === 0) {
+        console.log(`Sent ${messageCount} sensor data messages`);
+      }
       ws.send(JSON.stringify({
         type: 'sensorData',
         data: simulator.getSensorData()
