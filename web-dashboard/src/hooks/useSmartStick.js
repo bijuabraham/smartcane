@@ -1,68 +1,83 @@
 import { useState, useEffect, useRef } from 'react';
 import { SmartStickBLE } from '../services/bluetooth';
+import { SmartStickSimulator } from '../services/simulator';
 import toast from 'react-hot-toast';
 
 export function useSmartStick() {
+  const [mode, setMode] = useState('simulator');
   const [connected, setConnected] = useState(false);
   const [sensorData, setSensorData] = useState(null);
   const [alerts, setAlerts] = useState([]);
   const [sensorHistory, setSensorHistory] = useState([]);
   const [currentConfig, setCurrentConfig] = useState(null);
-  const bleRef = useRef(null);
+  const deviceRef = useRef(null);
 
   useEffect(() => {
-    bleRef.current = new SmartStickBLE();
+    if (mode === 'hardware') {
+      deviceRef.current = new SmartStickBLE();
+    } else {
+      deviceRef.current = new SmartStickSimulator();
+    }
     
-    bleRef.current.onSensorData = (data) => {
+    deviceRef.current.onSensorData = (data) => {
       setSensorData(data);
       setSensorHistory(prev => [...prev.slice(-50), data]);
     };
 
-    bleRef.current.onAlert = (alert) => {
+    deviceRef.current.onAlert = (alert) => {
       setAlerts(prev => [...prev, { ...alert, timestamp: Date.now() }]);
       
-      switch (alert.event) {
+      const eventType = alert.event || alert.type;
+      
+      switch (eventType) {
         case 'SOS_BUTTON_PRESSED':
+        case 'SOS':
           toast.error('🚨 SOS Alert!', { duration: 5000 });
           break;
         case 'FALL_DETECTED':
-          toast.error(`🤕 Fall Detected! (${alert.severity})`, { duration: 5000 });
+        case 'FALL':
+          toast.error(`🤕 Fall Detected!`, { duration: 5000 });
           break;
         case 'OBSTACLE_NEAR':
+        case 'OBSTACLE':
           toast.warning(`⚠️ Obstacle: ${alert.dist_mm}mm`, { duration: 3000 });
           break;
         case 'RFID_SEEN':
+        case 'RFID':
           toast.success(`📍 RFID: ${alert.uid}`, { duration: 3000 });
           break;
       }
     };
 
-    bleRef.current.onDisconnect = () => {
-      setConnected(false);
-      setSensorData(null);
-      toast.error('Disconnected from Smart Stick');
-    };
+    if (mode === 'hardware') {
+      deviceRef.current.onDisconnect = () => {
+        setConnected(false);
+        setSensorData(null);
+        toast.error('Disconnected from Smart Stick');
+      };
+    }
 
     return () => {
-      if (bleRef.current) {
-        bleRef.current.disconnect();
+      if (deviceRef.current) {
+        deviceRef.current.disconnect();
       }
     };
-  }, []);
+  }, [mode]);
 
   const connect = async () => {
     try {
-      await bleRef.current.connect();
+      await deviceRef.current.connect();
       setConnected(true);
       
       try {
-        const config = await bleRef.current.readConfig();
+        const config = await deviceRef.current.readConfig();
         setCurrentConfig(config);
       } catch (err) {
         console.warn('Could not read initial config:', err);
       }
       
-      toast.success('Connected to Smart Stick');
+      const deviceType = mode === 'hardware' ? 'Hardware' : 'Simulator';
+      toast.success(`Connected to ${deviceType}`);
     } catch (error) {
       toast.error(error.message || 'Failed to connect');
       throw error;
@@ -70,7 +85,7 @@ export function useSmartStick() {
   };
 
   const disconnect = async () => {
-    await bleRef.current.disconnect();
+    await deviceRef.current.disconnect();
     setConnected(false);
     setSensorData(null);
     setSensorHistory([]);
@@ -79,7 +94,7 @@ export function useSmartStick() {
 
   const updateConfig = async (config) => {
     try {
-      const response = await bleRef.current.updateConfig(config);
+      const response = await deviceRef.current.updateConfig(config);
       if (response.ok) {
         setCurrentConfig(config);
         toast.success('Configuration updated');
@@ -92,8 +107,17 @@ export function useSmartStick() {
       throw error;
     }
   };
+  
+  const switchMode = async (newMode) => {
+    if (connected) {
+      await disconnect();
+    }
+    setMode(newMode);
+    toast.success(`Switched to ${newMode === 'hardware' ? 'Hardware' : 'Simulator'} mode`);
+  };
 
   return {
+    mode,
     connected,
     sensorData,
     alerts,
@@ -102,5 +126,6 @@ export function useSmartStick() {
     connect,
     disconnect,
     updateConfig,
+    switchMode,
   };
 }

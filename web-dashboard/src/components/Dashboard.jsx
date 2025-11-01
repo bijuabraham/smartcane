@@ -1,7 +1,7 @@
-import { Bluetooth, BluetoothOff, Activity, Radio, CreditCard, Battery, Gauge, Settings } from 'lucide-react';
+import { Bluetooth, BluetoothOff, Activity, Radio, CreditCard, Battery, Gauge, Settings, Cpu, Wifi } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export function Dashboard({ connected, sensorData, sensorHistory, onConnect, onDisconnect, onConfigOpen }) {
+export function Dashboard({ mode, connected, sensorData, sensorHistory, onConnect, onDisconnect, onConfigOpen, onModeChange }) {
   const formatValue = (value) => {
     if (value === null || value === undefined) return 'N/A';
     if (typeof value === 'number') return value.toFixed(2);
@@ -20,7 +20,35 @@ export function Dashboard({ connected, sensorData, sensorHistory, onConnect, onD
               <p className="text-gray-400 mt-1">Real-time monitoring dashboard</p>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex items-center gap-2 bg-gray-800/70 rounded-lg p-1 border border-gray-700">
+                <button
+                  onClick={() => onModeChange('hardware')}
+                  disabled={connected}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all text-sm ${
+                    mode === 'hardware'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                  } ${connected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Wifi size={16} />
+                  <span>Hardware</span>
+                </button>
+                <button
+                  onClick={() => onModeChange('simulator')}
+                  disabled={connected}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all text-sm ${
+                    mode === 'simulator'
+                      ? 'bg-purple-600 text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                  } ${connected ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Cpu size={16} />
+                  <span>Simulator</span>
+                </button>
+              </div>
+              
+              <div className="flex gap-3">
               {connected && (
                 <button
                   onClick={onConfigOpen}
@@ -30,28 +58,41 @@ export function Dashboard({ connected, sensorData, sensorHistory, onConnect, onD
                   <span className="hidden sm:inline">Config</span>
                 </button>
               )}
-              <button
-                onClick={connected ? onDisconnect : onConnect}
-                className={`flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all ${
-                  connected
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-              >
-                {connected ? <BluetoothOff size={20} /> : <Bluetooth size={20} />}
-                <span>{connected ? 'Disconnect' : 'Connect'}</span>
-              </button>
+                <button
+                  onClick={connected ? onDisconnect : onConnect}
+                  className={`flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-all ${
+                    connected
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : mode === 'simulator' 
+                        ? 'bg-purple-600 hover:bg-purple-700'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {mode === 'simulator' ? <Cpu size={20} /> : <Bluetooth size={20} />}
+                  <span>{connected ? 'Disconnect' : 'Connect'}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {!connected ? (
           <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-12 text-center border border-gray-700">
-            <Bluetooth size={64} className="mx-auto mb-4 text-blue-400" />
+            {mode === 'simulator' ? (
+              <Cpu size={64} className="mx-auto mb-4 text-purple-400" />
+            ) : (
+              <Bluetooth size={64} className="mx-auto mb-4 text-blue-400" />
+            )}
             <h2 className="text-2xl font-semibold mb-2">Not Connected</h2>
-            <p className="text-gray-400 mb-6">Click the Connect button to pair with your Smart Stick</p>
+            <p className="text-gray-400 mb-6">
+              {mode === 'simulator' 
+                ? 'Click Connect to start the simulator and see live demo data'
+                : 'Click the Connect button to pair with your Smart Stick via Bluetooth'}
+            </p>
             <p className="text-sm text-gray-500">
-              Make sure your device is powered on and Bluetooth is enabled in your browser
+              {mode === 'simulator'
+                ? 'The simulator generates realistic sensor data for testing the dashboard'
+                : 'Make sure your device is powered on and Bluetooth is enabled in your browser'}
             </p>
           </div>
         ) : (
