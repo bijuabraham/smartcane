@@ -4,6 +4,22 @@
 #include <Arduino.h>
 
 // ===================================================================
+// Passive Buzzer Configuration
+// ===================================================================
+// RLECS Passive Buzzer Module (Amazon B07XDPXH7K)
+// Requires PWM signal at 2-5kHz to generate tones
+// Different frequencies for different alert types
+
+#define BUZZER_PWM_CHANNEL 0
+#define BUZZER_PWM_RESOLUTION 8  // 8-bit resolution (0-255)
+
+// Alert tone frequencies (Hz)
+#define TONE_SOS       3000   // High-pitched urgent tone
+#define TONE_FALL      2500   // High-medium urgent tone
+#define TONE_OBSTACLE  2000   // Medium warning tone
+#define TONE_RFID      3500   // High confirmation beep
+
+// ===================================================================
 // Haptics Event Types
 // ===================================================================
 

@@ -26,8 +26,9 @@ Total: **1,168 lines of code** across 11 source files
 ### Hardware Components
 - **MCU**: ESP32-S3 Dev Module
 - **Sensors**: MPU6050 (IMU), VL53L1X (ToF), MFRC522 (RFID)
-- **User I/O**: SOS button, buzzer, vibration motor, LED
+- **User I/O**: SOS button, passive buzzer module (PWM), vibration motor, LED
 - **Power**: Li-ion battery with optional voltage monitoring
+- **Buzzer**: RLECS B07XDPXH7K passive buzzer module (requires PWM, 2-5kHz)
 
 ### Software Architecture
 
@@ -150,6 +151,13 @@ Use nRF Connect or similar BLE scanner:
 4. Write configuration updates to CONFIG
 
 ## Recent Changes
+- 2025-11-01: Passive buzzer integration (RLECS B07XDPXH7K)
+  - Updated haptics module to use PWM control (ESP32 LEDC peripheral)
+  - Implemented distinct tones for different alert types:
+    - SOS: 3000 Hz, Fall: 2500 Hz, Obstacle: 2000 Hz, RFID: 3500 Hz
+  - Allows audible distinction between alert types without visual feedback
+  - Uses LEDC channel 0, 8-bit resolution
+  - Documentation updated with buzzer specifications
 - 2025-11-01: Initial firmware implementation complete
   - All sensor drivers implemented
   - BLE GATT server with three characteristics

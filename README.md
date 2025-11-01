@@ -25,10 +25,19 @@ Production-ready Arduino firmware for ESP32-S3 dev board that powers an intellig
 
 ### User I/O
 - SOS pushbutton (active LOW, internal pullup)
-- Piezo buzzer
+- **Passive Buzzer Module** (RLECS B07XDPXH7K or similar, requires PWM)
 - Vibration motor
 - Status LED
 - Optional: Battery voltage divider for ADC monitoring
+
+### Buzzer Specifications
+The firmware is configured for **passive buzzer modules** that require PWM signals (2-5kHz). Different alert types use different tones:
+- **SOS Alert**: 3000 Hz (high-pitched urgent tone)
+- **Fall Detection**: 2500 Hz (high-medium urgent tone)
+- **Obstacle Warning**: 2000 Hz (medium warning tone)
+- **RFID Detection**: 3500 Hz (high confirmation beep)
+
+This allows users to distinguish between alert types by sound alone.
 
 ## Pin Configuration
 
