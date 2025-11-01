@@ -12,5 +12,11 @@ export default defineConfig({
     hmr: {
       clientPort: 5000,
     },
+    proxy: {
+      '/simulator': {
+        target: 'ws://localhost:3001',
+        ws: true,
+      },
+    },
   },
 })

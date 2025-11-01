@@ -10,7 +10,11 @@ export class SmartStickSimulator {
   async connect() {
     return new Promise((resolve, reject) => {
       try {
-        this.ws = new WebSocket('ws://localhost:3001');
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/simulator`;
+        
+        console.log('Connecting to simulator:', wsUrl);
+        this.ws = new WebSocket(wsUrl);
         
         this.ws.onopen = () => {
           console.log('Connected to simulator backend');
