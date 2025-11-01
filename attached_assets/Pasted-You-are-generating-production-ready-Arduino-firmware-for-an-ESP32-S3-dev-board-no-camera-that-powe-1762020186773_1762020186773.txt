@@ -1,0 +1,84 @@
+You are generating production-ready Arduino firmware for an ESP32-S3 dev board (no camera) that powers a “Smart Walking Stick”.
+
+## Hardware
+- MCU: ESP32-S3 dev board (select “ESP32S3 Dev Module”).
+- Power: single-cell Li-ion (3.7V) via onboard regulator.
+- Sensors (3.3V):
+  - IMU: MPU6050 via I2C
+  - Time-of-Flight: VL53L1X via I2C
+  - RFID: MFRC522 via SPI
+- User I/O:
+  - SOS pushbutton (active LOW, internal pullup)
+  - Buzzer (digital pin)
+  - Vibration motor (digital pin or MOSFET gate)
+  - Status LED (active HIGH)
+- Optional: Battery voltage monitor via ADC (voltage divider to a safe ADC pin).
+- Board pins are DIFFERENT per vendor. Create a single header `pins.h` with clearly labeled defaults and a comment to adjust as needed:
+  - I2C_SDA = 8, I2C_SCL = 9   // CHANGE if your board differs
+  - SPI_SCK = 12, SPI_MISO = 13, SPI_MOSI = 11, RFID_CS = 10, RFID_RST = 14
+  - SOS_BTN = 15, BUZZER = 2, VIB_MOTOR = 3, LED = 1
+  - BATTERY_ADC = 4 (comment out if not wired)
+
+## BLE GATT (NimBLE)
+- Device name: SmartStick
+- One primary service: SMART_STICK_SVC = "12345678-1234-1234-1234-1234567890ab"
+- Characteristics:
+  1) SENSOR_DATA_CHAR (Notify, Read):
+     UUID "12345678-1234-1234-1234-1234567890ad"
+     Sends periodic JSON lines:
+     {
+       "ts": <ms>,
+       "imu": {"ax": float, "ay": float, "az": float, "gx": float, "gy": float, "gz": float},
+       "dist_mm": int,       // from VL53L1X (or -1 if invalid)
+       "rfid": "UIDHEX" | null,
+       "battery": {"v": float, "pct": int} // if BATTERY_ADC defined, otherwise omit field
+     }
+  2) ALERTS_CHAR (Notify, Read):
+     UUID "12345678-1234-1234-1234-1234567890ae"
+     Sends event JSON on triggers:
+     {"event":"SOS_BUTTON_PRESSED"}
+     {"event":"FALL_DETECTED","severity":"high","ax":..., "ay":..., "az":...}
+     {"event":"OBSTACLE_NEAR","dist_mm": 420}
+     {"event":"RFID_SEEN","uid":"11223344"}
+  3) CONFIG_CHAR (Write, Read):
+     UUID "12345678-1234-1234-1234-1234567890af"
+     Accepts JSON config writes:
+     {
+       "sensor_period_ms": 200,           // 100..1000
+       "obstacle_threshold_mm": 800,      // 200..2000
+       "fall_ax_threshold": 2.2,          // g’s
+       "ble_tx_power": 7                   // NimBLE TX power level
+     }
+     Reply with {"ok":true} or {"ok":false,"err":"..."}.
+
+## Firmware behavior
+- Use Arduino core for ESP32 + NimBLE (not Bluedroid).
+- Create a small state machine. Main loop periods:
+  - Sensor sampling every CONFIG.sensor_period_ms (default 200ms).
+  - RFID polled every 200ms; deduplicate same UID for 3 seconds.
+  - Battery read every 10s if ADC defined; compute percentage with 3.0–4.2V mapping and low-pass filter.
+- IMU:
+  - Initialize MPU6050; read accel/gyro at 100Hz; simple fall detection:
+    - If |accel| magnitude spike > (1g + fall_ax_threshold) then set “potential fall”.
+    - If followed by near-zero motion for ~1s → emit FALL_DETECTED(severity:"high").
+  - Expose accel/gyro values in SENSOR_DATA.
+- ToF:
+  - Initialize VL53L1X in Long mode with 50ms timing budget.
+  - If distance is valid and < obstacle_threshold_mm, send OBSTACLE_NEAR event (rate-limit to 1/sec).
+- RFID:
+  - Initialize MFRC522. When a new card UID is seen, emit RFID_SEEN event and include latest UID in SENSOR_DATA for 3 seconds.
+- SOS:
+  - Debounced interrupt or polled edge detect (20ms debounce). On press: blink LED, short buzz, send SOS event.
+- Haptics/LED:
+  - On FALL_DETECTED or SOS: pulse vibration motor (200ms) and buzzer (short chirp).
+- BLE:
+  - Start advertising with the service UUID. On connect, allow notifications on both characteristics.
+  - Pack JSON using ArduinoJson. Keep payloads under ~180 bytes; use snprintf for small messages if needed.
+  - If notifications are not enabled, skip sending to save power.
+- Power:
+  - Provide a compile-time `LOW_POWER` option: when enabled, light-sleep between cycles and reduce BLE interval (document in code).
+
+## Project structure
+- /src/main.cpp
+- /src/ble.cpp, /src/ble.h
+- /src/sensors.cpp,
