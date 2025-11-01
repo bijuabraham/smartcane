@@ -1,16 +1,94 @@
-import { Bluetooth, BluetoothOff, Activity, Radio, CreditCard, Battery, Gauge, Settings, Cpu, Wifi } from 'lucide-react';
+import { Bluetooth, BluetoothOff, Activity, Radio, CreditCard, Battery, Gauge, Settings, Cpu, Wifi, AlertTriangle, User, Bell, Clock } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export function Dashboard({ mode, connected, sensorData, sensorHistory, onConnect, onDisconnect, onConfigOpen, onModeChange }) {
+export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts = [], onConnect, onDisconnect, onConfigOpen, onModeChange }) {
   const formatValue = (value) => {
     if (value === null || value === undefined) return 'N/A';
     if (typeof value === 'number') return value.toFixed(2);
     return value;
   };
 
+  const getAlertIcon = (alertType) => {
+    switch (alertType) {
+      case 'SOS_BUTTON_PRESSED':
+      case 'SOS':
+        return <Bell className="text-red-400" size={20} />;
+      case 'FALL_DETECTED':
+      case 'FALL':
+        return <User className="text-orange-400" size={20} />;
+      case 'OBSTACLE_NEAR':
+      case 'OBSTACLE':
+        return <AlertTriangle className="text-yellow-400" size={20} />;
+      case 'RFID_SEEN':
+      case 'RFID':
+        return <CreditCard className="text-green-400" size={20} />;
+      default:
+        return <Activity className="text-gray-400" size={20} />;
+    }
+  };
+
+  const getAlertTitle = (alert) => {
+    const eventType = alert.event || alert.type;
+    switch (eventType) {
+      case 'SOS_BUTTON_PRESSED':
+      case 'SOS':
+        return 'SOS Alert';
+      case 'FALL_DETECTED':
+      case 'FALL':
+        return 'Fall Detected';
+      case 'OBSTACLE_NEAR':
+      case 'OBSTACLE':
+        return 'Obstacle Detected';
+      case 'RFID_SEEN':
+      case 'RFID':
+        return 'RFID Scan';
+      default:
+        return 'Alert';
+    }
+  };
+
+  const getAlertDetails = (alert) => {
+    const eventType = alert.event || alert.type;
+    switch (eventType) {
+      case 'FALL_DETECTED':
+      case 'FALL':
+        return alert.ax ? `Acceleration: ${alert.ax.toFixed(2)}g` : 'High impact detected';
+      case 'OBSTACLE_NEAR':
+      case 'OBSTACLE':
+        return alert.dist_mm ? `Distance: ${alert.dist_mm}mm` : 'Object nearby';
+      case 'RFID_SEEN':
+      case 'RFID':
+        return alert.uid ? `UID: ${alert.uid}` : 'Tag scanned';
+      case 'SOS_BUTTON_PRESSED':
+      case 'SOS':
+        return 'Emergency button pressed';
+      default:
+        return '';
+    }
+  };
+
+  const getAlertColor = (alertType) => {
+    switch (alertType) {
+      case 'SOS_BUTTON_PRESSED':
+      case 'SOS':
+        return 'border-red-500/50 bg-red-500/10';
+      case 'FALL_DETECTED':
+      case 'FALL':
+        return 'border-orange-500/50 bg-orange-500/10';
+      case 'OBSTACLE_NEAR':
+      case 'OBSTACLE':
+        return 'border-yellow-500/50 bg-yellow-500/10';
+      case 'RFID_SEEN':
+      case 'RFID':
+        return 'border-green-500/50 bg-green-500/10';
+      default:
+        return 'border-gray-500/50 bg-gray-500/10';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div className="max-w-[1800px] mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -96,7 +174,8 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, onConnec
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
+            <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 border border-gray-700">
                 <div className="flex items-center gap-3 mb-2">
@@ -214,6 +293,54 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, onConnec
                 </ResponsiveContainer>
               </div>
             )}
+          </div>
+
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 p-6 h-fit lg:sticky lg:top-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Bell size={24} className="text-blue-400" />
+                <h3 className="text-xl font-semibold">Alert History</h3>
+              </div>
+              
+              {alerts.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  <Activity size={48} className="mx-auto mb-3 opacity-30" />
+                  <p>No alerts yet</p>
+                  <p className="text-sm mt-1">Alerts will appear here as they occur</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto pr-2 custom-scrollbar">
+                  {[...alerts].reverse().map((alert, index) => {
+                    const eventType = alert.event || alert.type;
+                    return (
+                      <div 
+                        key={`${alert.timestamp}-${index}`}
+                        className={`p-4 rounded-lg border transition-all hover:scale-[1.02] ${getAlertColor(eventType)}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5">
+                            {getAlertIcon(eventType)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <h4 className="font-semibold text-sm">
+                                {getAlertTitle(alert)}
+                              </h4>
+                              <div className="flex items-center gap-1 text-xs text-gray-500 shrink-0">
+                                <Clock size={12} />
+                                {new Date(alert.timestamp).toLocaleTimeString()}
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-400">
+                              {getAlertDetails(alert)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@ import { useSmartStick } from './hooks/useSmartStick';
 
 function App() {
   const [showConfig, setShowConfig] = useState(false);
-  const { mode, connected, sensorData, sensorHistory, currentConfig, connect, disconnect, updateConfig, switchMode } = useSmartStick();
+  const { mode, connected, sensorData, sensorHistory, alerts, currentConfig, connect, disconnect, updateConfig, switchMode } = useSmartStick();
 
   const handleConfigSave = async (config) => {
     try {
@@ -26,6 +26,7 @@ function App() {
         connected={connected}
         sensorData={sensorData}
         sensorHistory={sensorHistory}
+        alerts={alerts}
         onConnect={connect}
         onDisconnect={disconnect}
         onConfigOpen={() => setShowConfig(true)}
