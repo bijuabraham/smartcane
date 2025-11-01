@@ -200,6 +200,7 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, onConnec
                       stroke="#9CA3AF"
                       tick={{ fill: '#9CA3AF' }}
                       label={{ value: 'Acceleration (g)', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }}
+                      domain={[-2, 12]}
                     />
                     <Tooltip 
                       contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
