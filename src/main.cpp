@@ -8,6 +8,14 @@
 #include "haptics.h"
 
 // ===================================================================
+// Forward Declarations
+// ===================================================================
+
+void handle_sos_button(unsigned long now);
+void update_sensors(unsigned long now);
+void update_rfid(unsigned long now);
+
+// ===================================================================
 // Global Configuration Instance
 // ===================================================================
 
@@ -200,7 +208,7 @@ void update_sensors(unsigned long now) {
     }
   }
   
-  send_sensor_data(imu, tof, battery, now);
+  ble_send_sensor_data(imu, tof, battery, now);
 }
 
 // ===================================================================
