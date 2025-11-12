@@ -1,0 +1,62 @@
+Initializing BLE...
+BLE: Initializing...
+I NimBLEDevice: BLE Host Task Started
+I NimBLEDevice: NimBle host synced.
+BLE: Advertising started
+
+Setup complete! Ready to go.
+
+Sensor update period: 200 ms
+Obstacle threshold: 800 mm
+Fall threshold: 2.2BLE: Client connected
+0 g
+[  1384][E][Wire.cpp:499] requestFrom(): i2cWriteReadNonStop returned Error -1
+[  1393][E][Wire.cpp:499] requestFrom(): i2cWriteReadNonStop returned Error -1
+[  1400][E][Wire.cpp:499] requestFrom(): i2cWriteReadNonStop returned Error -1
+Guru Meditation Error: Core  1 panic'ed (LoadProhibited). Exception was unhandled.
+
+Core  1 register dump:
+PC      : 0x4200535b  PS      : 0x00060430  A0      : 0x82005747  A1      : 0x3fcebac0  
+A2      : 0x00000000  A3      : 0x00000029  A4      : 0x3fc9db50  A5      : 0x3fcebba0  
+A6      : 0x00000002  A7      : 0x3c06030e  A8      : 0x82004433  A9      : 0x3fcebbf0  
+A10     : 0x3fcebc54  A11     : 0x00000000  A12     : 0x3fc9c5e4  A13     : 0x00000000  
+A14     : 0x000000ff  A15     : 0x00000000  SAR     : 0x0000001d  EXCCAUSE: 0x0000001c  
+EXCVADDR: 0x00000040  LBEG    : 0x40054bf0  LEND    : 0x40054c0f  LCOUNT  : 0x00000000  
+
+
+Backtrace: 0x42005358:0x3fcebac0 0x42005744:0x3fcebaf0 0x420063f0:0x3fcebb10 0x4200644e:0x3fcebb40 0x42006472:0x3fcebb60 0x42006491:0x3fcebb90 0x420062a9:0x3fcebbc0 0x42004be0:0x3fcebbf0 0x42004430:0x3fcebc20 0x420049c5:0x3fcebec0 0x4201c775:0x3fcebee0
+
+
+
+
+ELF file SHA256: aad7d04aaf65b40c
+
+Rebooting...
+␀�ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0xc (RTC_SW_CPU_RST),boot:0x29 (SPI_FAST_FLASH_BOOT)
+Saved PC:0x4205e716
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce3808,len:0x4bc
+load:0x403c9700,len:0xbd8
+load:0x403cc700,len:0x2a0c
+entry 0x403c98d0
+E (160) psram: PSRAM ID read error: 0x00ffffff, PSRAM chip not found or not supported, or wrong PSRAM line mode
+[   160][W][esp32-hal-psram.c:71] psramInit(): PSRAM init failed!
+
+
+=================================
+  Smart Walking Stick Firmware  
+  ESP32-S3 + NimBLE              
+=================================
+
+Haptics: Initialized (Passive Buzzer with PWM)
+Initializing sensors...
+Sensors: Initializing...
+[  1207][I][esp32-hal-i2c.c:75] i2cInit(): Initialising I2C Master: sda=8 scl=9 freq=100000
+[  1225][W][Wire.cpp:301] begin(): Bus already started in Master Mode.
+[  1242][W][Wire.cpp:301] begin(): Bus already started in Master Mode.
+[  1259][W][Wire.cpp:301] begin(): Bus already started in Master Mode.
+[  1275][W][Wire.cpp:301] begin(): Bus already started in Master Mode.
+[  1291][W][Wire.cpp:301] begin(): Bus already started in Master Mode.

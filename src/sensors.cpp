@@ -16,6 +16,7 @@ static MFRC522 rfid(RFID_CS, RFID_RST);
 
 static RFIDData last_rfid_data = {0};
 static float battery_filtered = 0.0;
+static bool sensors_initialized = false;
 
 // ===================================================================
 // Sensor Initialization
@@ -65,6 +66,7 @@ bool sensors_init() {
 #endif
   
   Serial.println("Sensors: All initialized");
+  sensors_initialized = true;
   return true;
 }
 
@@ -81,6 +83,11 @@ void sensors_update() {
 
 IMUData imu_read() {
   IMUData data = {0};
+  
+  if (!sensors_initialized) {
+    data.valid = false;
+    return data;
+  }
   
   sensors_event_t accel, gyro, temp;
   if (mpu.getEvent(&accel, &gyro, &temp)) {
@@ -104,6 +111,12 @@ IMUData imu_read() {
 
 ToFData tof_read() {
   ToFData data = {0};
+  
+  if (!sensors_initialized) {
+    data.distance_mm = -1;
+    data.valid = false;
+    return data;
+  }
   
   if (vl53.dataReady()) {
     int16_t distance = vl53.distance();
@@ -131,6 +144,11 @@ ToFData tof_read() {
 
 RFIDData rfid_read() {
   RFIDData data = {0};
+  
+  if (!sensors_initialized) {
+    data.valid = false;
+    return data;
+  }
   
   if (!rfid.PICC_IsNewCardPresent()) {
     if (last_rfid_data.valid && 
