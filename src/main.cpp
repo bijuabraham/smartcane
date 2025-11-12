@@ -57,16 +57,15 @@ void setup() {
   Serial.println("Initializing sensors...");
   
   if (!sensors_init()) {
-    Serial.println("ERROR: Sensor initialization failed!");
-    while (1) {
-      haptics_led_blink(100);
-      delay(500);
-    }
+    Serial.println("WARNING: Sensor initialization failed!");
+    Serial.println("Continuing without sensors (BLE test mode)...");
+    Serial.println("You can still connect via Bluetooth and test the system.");
+  } else {
+    Serial.println("All sensors initialized successfully!");
+    fall_detection_init();
   }
   
-  fall_detection_init();
-  
-  Serial.println("Initializing BLE...");
+  Serial.println("\nInitializing BLE...");
   ble_init();
   
   haptics_led_set(false);
