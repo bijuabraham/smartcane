@@ -208,7 +208,34 @@ void update_sensors(unsigned long now) {
     }
   }
   
-  ble_send_sensor_data(imu, tof, battery, now);
+  // Serialize sensor data to JSON
+  StaticJsonDocument<256> doc;
+  
+  if (imu.valid) {
+    JsonObject imu_obj = doc.createNestedObject("imu");
+    imu_obj["ax"] = imu.ax;
+    imu_obj["ay"] = imu.ay;
+    imu_obj["az"] = imu.az;
+    imu_obj["gx"] = imu.gx;
+    imu_obj["gy"] = imu.gy;
+    imu_obj["gz"] = imu.gz;
+  }
+  
+  if (tof.valid) {
+    doc["dist_mm"] = tof.distance_mm;
+  }
+  
+  if (battery.valid) {
+    JsonObject bat_obj = doc.createNestedObject("battery");
+    bat_obj["v"] = battery.voltage;
+    bat_obj["pct"] = battery.percentage;
+  }
+  
+  doc["ts"] = now;
+  
+  char json[256];
+  serializeJson(doc, json);
+  ble_send_sensor_data(json);
 }
 
 // ===================================================================
