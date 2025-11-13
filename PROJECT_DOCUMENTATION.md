@@ -174,8 +174,8 @@ The Smart Walking Stick system consists of three main components:
 **I²C Bus (Shared by MPU6050 and VL53L1X):**
 ```
 ESP32-S3          Sensors
-GPIO 8  (SDA) ──→ MPU6050 SDA, VL53L1X SDA
-GPIO 9  (SCL) ──→ MPU6050 SCL, VL53L1X SCL
+GPIO 21 (SDA) ──→ MPU6050 SDA, VL53L1X SDA
+GPIO 20 (SCL) ──→ MPU6050 SCL, VL53L1X SCL
 3.3V          ──→ VCC/VIN (all I2C sensors)
 GND           ──→ GND (all sensors)
 ```
