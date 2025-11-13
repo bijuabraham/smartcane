@@ -1,0 +1,47 @@
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/libdd5/Adafruit BusIO/Adafruit_SPIDevice.cpp.o] Error 1
+/Users/bijuabraham/.platformio/packages/framework-arduinoespressif32/cores/esp32/HWCDC.cpp:609:16: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/FrameworkArduino/HWCDC.cpp.d: No such file or directory
+ HWCDC USBSerial;
+                ^
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/FrameworkArduino/HWCDC.cpp.o] Error 1
+/Users/bijuabraham/.platformio/packages/framework-arduinoespressif32/cores/esp32/FunctionalInterrupt.cpp:40:1: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/FrameworkArduino/FunctionalInterrupt.cpp.d: No such file or directory
+ }
+ ^
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/FrameworkArduino/FunctionalInterrupt.cpp.o] Error 1
+/Users/bijuabraham/.platformio/packages/framework-arduinoespressif32/cores/esp32/Esp.cpp:455:1: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/FrameworkArduino/Esp.cpp.d: No such file or directory
+ }
+ ^
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/FrameworkArduino/Esp.cpp.o] Error 1
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/bijuabraham/Documents/GitHub/FirmwareGenerator/.pio/build/esp32-s3-devkitc-1/.sconsign311.tmp':
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1508:
+    _exec_main(parser, values)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1462:
+    _main(parser)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1201:
+    nodes = _build_targets(fs, options, targets, target_top)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1396:
+    jobs.run(postfunc = jobs_postfunc)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Taskmaster/Job.py", line 114:
+    postfunc()
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1393:
+    SCons.SConsign.write()
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/SConsign.py", line 131:
+    syncmethod()
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 195:
+    with self._open(self._tmp_name, "wb", opener=self.opener) as f:
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 177:
+    return os.open(path, flags, mode=self._mode)
+Exception ignored in: <function _Dblite.__del__ at 0x109c52200>
+Traceback (most recent call last):
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 184, in __del__
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 181, in close
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 195, in sync
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 177, in opener
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/bijuabraham/Documents/GitHub/FirmwareGenerator/.pio/build/esp32-s3-devkitc-1/.sconsign311.tmp'
+===== [FAILED] Took 1.73 seconds =====
+
+ *  The terminal process "platformio 'run', '--target', 'upload', '--environment', 'esp32-s3-devkitc-1'" terminated with exit code: 1. 
+ *  Terminal will be reused by tasks, press any key to close it. 
