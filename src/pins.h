@@ -10,8 +10,8 @@
 // ===================================================================
 
 // I2C Pins (for MPU6050 IMU and VL53L1X ToF sensor)
-// Using GPIO 21 and 20 (commonly available on most ESP32-S3 boards)
-#define I2C_SDA 21
+// Trying GPIO 19 and GPIO 20 for better compatibility
+#define I2C_SDA 19
 #define I2C_SCL 20
 
 // SPI Pins (for MFRC522 RFID reader)
