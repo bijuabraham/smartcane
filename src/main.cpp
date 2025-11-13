@@ -168,6 +168,30 @@ void update_sensors(unsigned long now) {
     battery.valid = false;
   }
   
+  // Debug output to Serial Monitor
+  if (tof.valid) {
+    Serial.print("ToF: ");
+    Serial.print(tof.distance_mm);
+    Serial.print(" mm  ");
+  }
+  if (imu.valid) {
+    Serial.print("IMU: ax=");
+    Serial.print(imu.ax, 2);
+    Serial.print(" ay=");
+    Serial.print(imu.ay, 2);
+    Serial.print(" az=");
+    Serial.print(imu.az, 2);
+    Serial.print("  ");
+  }
+  if (battery.valid) {
+    Serial.print("Batt: ");
+    Serial.print(battery.percentage);
+    Serial.print("%");
+  }
+  if (tof.valid || imu.valid || battery.valid) {
+    Serial.println();
+  }
+  
   if (imu.valid) {
     fall_detection_update(imu);
     
