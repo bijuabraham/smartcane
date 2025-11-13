@@ -45,17 +45,24 @@ bool sensors_init() {
   }
   
   // Try to initialize VL53L1X
+  Serial.println("Sensors: Initializing VL53L1X on I2C...");
+  delay(100); // Give sensor time to power up
+  
   if (vl53.begin(0x29, &Wire)) {
+    Serial.println("Sensors: VL53L1X detected at 0x29");
+    delay(50);
+    
     if (vl53.startRanging()) {
       vl53.setTimingBudget(50);
-      Serial.println("Sensors: VL53L1X OK");
+      Serial.println("Sensors: VL53L1X OK - Ranging started!");
       vl53_initialized = true;
     } else {
-      Serial.println("Sensors: VL53L1X ranging start failed (skipping)");
+      Serial.println("ERROR: VL53L1X ranging start failed!");
       vl53_initialized = false;
     }
   } else {
-    Serial.println("Sensors: VL53L1X not found (skipping)");
+    Serial.println("ERROR: VL53L1X not found at 0x29!");
+    Serial.println("Check: SDA=GPIO19, SCL=GPIO20, VIN=3.3V, GND connected");
     vl53_initialized = false;
   }
   
