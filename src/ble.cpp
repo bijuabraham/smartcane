@@ -167,7 +167,8 @@ bool ble_is_connected() {
 
 void ble_send_sensor_data(const char* json) {
   if (deviceConnected && pSensorDataChar->getSubscribedCount() > 0) {
-    pSensorDataChar->setValue(json);
+    size_t len = strlen(json);
+    pSensorDataChar->setValue((uint8_t*)json, len);
     pSensorDataChar->notify();
     Serial.print("BLE Sensor: ");
     Serial.println(json);
@@ -180,7 +181,8 @@ void ble_send_sensor_data(const char* json) {
 
 void ble_send_alert(const char* json) {
   if (deviceConnected && pAlertsChar->getSubscribedCount() > 0) {
-    pAlertsChar->setValue(json);
+    size_t len = strlen(json);
+    pAlertsChar->setValue((uint8_t*)json, len);
     pAlertsChar->notify();
     Serial.print("BLE Alert: ");
     Serial.println(json);
