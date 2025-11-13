@@ -1,0 +1,98 @@
+ *  Executing task: platformio run --target upload --environment esp32-s3-devkitc-1 
+
+Processing esp32-s3-devkitc-1 (platform: espressif32; board: esp32-s3-devkitc-1; framework: arduino)
+--------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/esp32-s3-devkitc-1.html
+PLATFORM: Espressif 32 (6.12.0) > Espressif ESP32-S3-DevKitC-1-N8 (8 MB QD, No PSRAM)
+HARDWARE: ESP32S3 240MHz, 320KB RAM, 8MB Flash
+DEBUG: Current (esp-builtin) On-board (esp-builtin) External (cmsis-dap, esp-bridge, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 3.20017.241212+sha.dcc1105b 
+ - tool-esptoolpy @ 2.40900.250804 (4.9.0) 
+ - tool-mkfatfs @ 2.0.1 
+ - tool-mklittlefs @ 1.203.210628 (2.3) 
+ - tool-mkspiffs @ 2.230.0 (2.30) 
+ - toolchain-riscv32-esp @ 8.4.0+2021r2-patch5 
+ - toolchain-xtensa-esp32s3 @ 8.4.0+2021r2-patch5
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 35 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- Adafruit VL53L1X @ 3.1.2
+|-- Adafruit BusIO @ 1.17.4
+|-- Wire @ 2.0.0
+Building in release mode
+Compiling .pio/build/esp32-s3-devkitc-1/src/main.cpp.o
+Building .pio/build/esp32-s3-devkitc-1/bootloader.bin
+Generating partitions .pio/build/esp32-s3-devkitc-1/partitions.bin
+esptool.py v4.9.0
+Creating esp32s3 image...
+Merged 1 ELF section
+Successfully created esp32s3 image.
+Compiling .pio/build/esp32-s3-devkitc-1/lib8e8/Wire/Wire.cpp.o
+Compiling .pio/build/esp32-s3-devkitc-1/libb38/Adafruit VL53L1X/Adafruit_VL53L1X.cpp.o
+Compiling .pio/build/esp32-s3-devkitc-1/libb38/Adafruit VL53L1X/vl53l1x_class.cpp.o
+Compiling .pio/build/esp32-s3-devkitc-1/lib46b/SPI/SPI.cpp.o
+src/main.cpp:54:1: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/src/main.cpp.d: No such file or directory
+ }
+ ^
+compilation terminated.
+Compiling .pio/build/esp32-s3-devkitc-1/libdd5/Adafruit BusIO/Adafruit_BusIO_Register.cpp.o
+*** [.pio/build/esp32-s3-devkitc-1/src/main.cpp.o] Error 1
+/Users/bijuabraham/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.cpp:698:27: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/lib8e8/Wire/Wire.cpp.d: No such file or directory
+ TwoWire Wire1 = TwoWire(1);
+                           ^
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/lib8e8/Wire/Wire.cpp.o] Error 1
+.pio/libdeps/esp32-s3-devkitc-1/Adafruit VL53L1X/src/Adafruit_VL53L1X.cpp:250:1: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/libb38/Adafruit VL53L1X/Adafruit_VL53L1X.cpp.d: No such file or directory
+ }
+ ^
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/libb38/Adafruit VL53L1X/Adafruit_VL53L1X.cpp.o] Error 1
+/Users/bijuabraham/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.cpp:350:19: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/lib46b/SPI/SPI.cpp.d: No such file or directory
+ SPIClass SPI(FSPI);
+                   ^
+compilation terminated.
+.pio/libdeps/esp32-s3-devkitc-1/Adafruit VL53L1X/src/vl53l1x_class.cpp:1224:1: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/libb38/Adafruit VL53L1X/vl53l1x_class.cpp.d: No such file or directory
+ }
+ ^
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/lib46b/SPI/SPI.cpp.o] Error 1
+*** [.pio/build/esp32-s3-devkitc-1/libb38/Adafruit VL53L1X/vl53l1x_class.cpp.o] Error 1
+.pio/libdeps/esp32-s3-devkitc-1/Adafruit BusIO/Adafruit_BusIO_Register.cpp:382:1: fatal error: opening dependency file .pio/build/esp32-s3-devkitc-1/libdd5/Adafruit BusIO/Adafruit_BusIO_Register.cpp.d: No such file or directory
+ }
+ ^
+compilation terminated.
+*** [.pio/build/esp32-s3-devkitc-1/libdd5/Adafruit BusIO/Adafruit_BusIO_Register.cpp.o] Error 1
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/bijuabraham/Documents/GitHub/FirmwareGenerator/.pio/build/esp32-s3-devkitc-1/.sconsign311.tmp':
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1508:
+    _exec_main(parser, values)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1462:
+    _main(parser)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1201:
+    nodes = _build_targets(fs, options, targets, target_top)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1396:
+    jobs.run(postfunc = jobs_postfunc)
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Taskmaster/Job.py", line 114:
+    postfunc()
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/Script/Main.py", line 1393:
+    SCons.SConsign.write()
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/SConsign.py", line 131:
+    syncmethod()
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 195:
+    with self._open(self._tmp_name, "wb", opener=self.opener) as f:
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 177:
+    return os.open(path, flags, mode=self._mode)
+Exception ignored in: <function _Dblite.__del__ at 0x1063c6200>
+Traceback (most recent call last):
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 184, in __del__
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 181, in close
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 195, in sync
+  File "/Users/bijuabraham/.platformio/packages/tool-scons/scons-local-4.8.1/SCons/dblite.py", line 177, in opener
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/bijuabraham/Documents/GitHub/FirmwareGenerator/.pio/build/esp32-s3-devkitc-1/.sconsign311.tmp'
+===== [FAILED] Took 1.17 seconds =====
+
+ *  The terminal process "platformio 'run', '--target', 'upload', '--environment', 'esp32-s3-devkitc-1'" terminated with exit code: 1. 
+ *  Terminal will be reused by tasks, press any key to close it. 
