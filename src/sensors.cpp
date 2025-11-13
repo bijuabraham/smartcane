@@ -18,6 +18,11 @@ static RFIDData last_rfid_data = {0};
 static float battery_filtered = 0.0;
 static bool sensors_initialized = false;
 
+// Individual sensor initialization flags
+static bool mpu_initialized = false;
+static bool vl53_initialized = false;
+static bool rfid_initialized = false;
+
 // ===================================================================
 // Sensor Initialization
 // ===================================================================
@@ -27,37 +32,45 @@ bool sensors_init() {
   
   Wire.begin(I2C_SDA, I2C_SCL);
   
-  if (!mpu.begin()) {
-    Serial.println("Sensors: MPU6050 init failed!");
-    return false;
+  // Try to initialize MPU6050
+  if (mpu.begin()) {
+    mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+    mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+    mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+    Serial.println("Sensors: MPU6050 OK");
+    mpu_initialized = true;
+  } else {
+    Serial.println("Sensors: MPU6050 not found (skipping)");
+    mpu_initialized = false;
   }
   
-  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
-  Serial.println("Sensors: MPU6050 OK");
-  
-  if (!vl53.begin(0x29, &Wire)) {
-    Serial.println("Sensors: VL53L1X init failed!");
-    return false;
+  // Try to initialize VL53L1X
+  if (vl53.begin(0x29, &Wire)) {
+    if (vl53.startRanging()) {
+      vl53.setTimingBudget(50);
+      Serial.println("Sensors: VL53L1X OK");
+      vl53_initialized = true;
+    } else {
+      Serial.println("Sensors: VL53L1X ranging start failed (skipping)");
+      vl53_initialized = false;
+    }
+  } else {
+    Serial.println("Sensors: VL53L1X not found (skipping)");
+    vl53_initialized = false;
   }
   
-  if (!vl53.startRanging()) {
-    Serial.println("Sensors: VL53L1X ranging start failed!");
-    return false;
-  }
-  
-  vl53.setTimingBudget(50);
-  Serial.println("Sensors: VL53L1X OK");
-  
+  // Try to initialize MFRC522
   SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
   rfid.PCD_Init();
   
-  if (!rfid.PCD_PerformSelfTest()) {
-    Serial.println("Sensors: MFRC522 self-test failed (may be OK)");
+  if (rfid.PCD_PerformSelfTest()) {
+    rfid.PCD_Init();
+    Serial.println("Sensors: MFRC522 OK");
+    rfid_initialized = true;
+  } else {
+    Serial.println("Sensors: MFRC522 not found (skipping)");
+    rfid_initialized = false;
   }
-  rfid.PCD_Init();
-  Serial.println("Sensors: MFRC522 OK");
   
 #ifdef BATTERY_ADC
   pinMode(BATTERY_ADC, INPUT);
@@ -65,9 +78,23 @@ bool sensors_init() {
   Serial.println("Sensors: Battery monitoring enabled");
 #endif
   
-  Serial.println("Sensors: All initialized");
-  sensors_initialized = true;
-  return true;
+  // Check if at least one sensor initialized
+  if (mpu_initialized || vl53_initialized || rfid_initialized) {
+    Serial.print("Sensors: Initialization complete (");
+    Serial.print("MPU:");
+    Serial.print(mpu_initialized ? "Y" : "N");
+    Serial.print(" VL53:");
+    Serial.print(vl53_initialized ? "Y" : "N");
+    Serial.print(" RFID:");
+    Serial.print(rfid_initialized ? "Y" : "N");
+    Serial.println(")");
+    sensors_initialized = true;
+    return true;
+  } else {
+    Serial.println("Sensors: No sensors found!");
+    sensors_initialized = false;
+    return false;
+  }
 }
 
 // ===================================================================
@@ -84,7 +111,7 @@ void sensors_update() {
 IMUData imu_read() {
   IMUData data = {0};
   
-  if (!sensors_initialized) {
+  if (!mpu_initialized) {
     data.valid = false;
     return data;
   }
@@ -112,7 +139,7 @@ IMUData imu_read() {
 ToFData tof_read() {
   ToFData data = {0};
   
-  if (!sensors_initialized) {
+  if (!vl53_initialized) {
     data.distance_mm = -1;
     data.valid = false;
     return data;
@@ -145,7 +172,7 @@ ToFData tof_read() {
 RFIDData rfid_read() {
   RFIDData data = {0};
   
-  if (!sensors_initialized) {
+  if (!rfid_initialized) {
     data.valid = false;
     return data;
   }
