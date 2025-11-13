@@ -1,0 +1,77 @@
+xecuting task: platformio run --target upload --environment esp32-s3-devkitc-1 
+
+Processing esp32-s3-devkitc-1 (platform: espressif32; board: esp32-s3-devkitc-1; framework: arduino)
+--------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/esp32-s3-devkitc-1.html
+PLATFORM: Espressif 32 (6.12.0) > Espressif ESP32-S3-DevKitC-1-N8 (8 MB QD, No PSRAM)
+HARDWARE: ESP32S3 240MHz, 320KB RAM, 8MB Flash
+DEBUG: Current (esp-builtin) On-board (esp-builtin) External (cmsis-dap, esp-bridge, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 3.20017.241212+sha.dcc1105b 
+ - tool-esptoolpy @ 2.40900.250804 (4.9.0) 
+ - tool-mkfatfs @ 2.0.1 
+ - tool-mklittlefs @ 1.203.210628 (2.3) 
+ - tool-mkspiffs @ 2.230.0 (2.30) 
+ - toolchain-riscv32-esp @ 8.4.0+2021r2-patch5 
+ - toolchain-xtensa-esp32s3 @ 8.4.0+2021r2-patch5
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 35 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- Adafruit VL53L1X @ 3.1.2
+|-- Adafruit BusIO @ 1.17.4
+|-- Wire @ 2.0.0
+Building in release mode
+Compiling .pio/build/esp32-s3-devkitc-1/src/ble.cpp.o
+Compiling .pio/build/esp32-s3-devkitc-1/src/main.cpp.o
+Compiling .pio/build/esp32-s3-devkitc-1/src/sensors.cpp.o
+In file included from src/ble.cpp:1:
+src/ble.h:5:10: fatal error: NimBLEDevice.h: No such file or directory
+
+**********************************************************************
+* Looking for NimBLEDevice.h dependency? Check our library registry!
+*
+* CLI  > platformio lib search "header:NimBLEDevice.h"
+* Web  > https://registry.platformio.org/search?q=header:NimBLEDevice.h
+*
+**********************************************************************
+
+ #include <NimBLEDevice.h>
+          ^~~~~~~~~~~~~~~~
+compilation terminated.
+src/main.cpp:2:10: fatal error: ArduinoJson.h: No such file or directory
+
+*********************************************************************
+* Looking for ArduinoJson.h dependency? Check our library registry!
+*
+* CLI  > platformio lib search "header:ArduinoJson.h"
+* Web  > https://registry.platformio.org/search?q=header:ArduinoJson.h
+*
+*********************************************************************
+
+ #include <ArduinoJson.h>
+          ^~~~~~~~~~~~~~~
+compilation terminated.
+src/sensors.cpp:5:10: fatal error: Adafruit_MPU6050.h: No such file or directory
+
+**************************************************************************
+* Looking for Adafruit_MPU6050.h dependency? Check our library registry!
+*
+* CLI  > platformio lib search "header:Adafruit_MPU6050.h"
+* Web  > https://registry.platformio.org/search?q=header:Adafruit_MPU6050.h
+*
+**************************************************************************
+
+ #include <Adafruit_MPU6050.h>
+          ^~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+Compiling .pio/build/esp32-s3-devkitc-1/libdd5/Adafruit BusIO/Adafruit_SPIDevice.cpp.o
+*** [.pio/build/esp32-s3-devkitc-1/src/ble.cpp.o] Error 1
+*** [.pio/build/esp32-s3-devkitc-1/src/main.cpp.o] Error 1
+*** [.pio/build/esp32-s3-devkitc-1/src/sensors.cpp.o] Error 1
+===== [FAILED] Took 1.15 seconds =====
+
+ *  The terminal process "platformio 'run', '--target', 'upload', '--environment', 'esp32-s3-devkitc-1'" terminated with exit code: 1. 
+ *  Terminal will be reused by tasks, press any key to close it. 
