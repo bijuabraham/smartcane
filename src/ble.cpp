@@ -169,6 +169,8 @@ void ble_send_sensor_data(const char* json) {
   if (deviceConnected && pSensorDataChar->getSubscribedCount() > 0) {
     pSensorDataChar->setValue(json);
     pSensorDataChar->notify();
+    Serial.print("BLE Sensor: ");
+    Serial.println(json);
   }
 }
 
