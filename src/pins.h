@@ -10,9 +10,9 @@
 // ===================================================================
 
 // I2C Pins (for MPU6050 IMU and VL53L1X ToF sensor)
-// Trying GPIO 19 and GPIO 20 for better compatibility
-#define I2C_SDA 19
-#define I2C_SCL 20
+// Using GPIO 48 (SDA) and GPIO 47 (SCL) for MPU6050 + VL53L1X
+#define I2C_SDA 48
+#define I2C_SCL 47
 
 // SPI Pins (for MFRC522 RFID reader)
 #define SPI_SCK  12
