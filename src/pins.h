@@ -9,11 +9,14 @@
 // Adjust these values to match your actual hardware connections.
 // ===================================================================
 
-// I2C Pins (for MPU6050 IMU and VL53L1X ToF sensor)
-// MPU6050: GPIO 2 (SDA) and GPIO 1 (SCL)
-// VL53L1X: Uses the same I2C bus (different address 0x29)
+// I2C Pins - Dual I2C Bus Configuration
+// I2C Bus 0 (Wire) for MPU6050
 #define I2C_SDA 2
 #define I2C_SCL 1
+
+// I2C Bus 1 (Wire1) for VL53L1X
+#define I2C1_SDA 19
+#define I2C1_SCL 20
 
 // SPI Pins (for MFRC522 RFID reader)
 #define SPI_SCK  12

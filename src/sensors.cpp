@@ -30,26 +30,38 @@ static bool rfid_initialized = false;
 bool sensors_init() {
   Serial.println("Sensors: Initializing...");
   
+  // Initialize I2C Bus 0 for MPU6050 (GPIO 2/1)
+  Serial.print("I2C Bus 0: Initializing on SDA=");
+  Serial.print(I2C_SDA);
+  Serial.print(", SCL=");
+  Serial.println(I2C_SCL);
   Wire.begin(I2C_SDA, I2C_SCL);
   
-  // Try to initialize MPU6050
-  if (mpu.begin()) {
+  // Initialize I2C Bus 1 for VL53L1X (GPIO 19/20)
+  Serial.print("I2C Bus 1: Initializing on SDA=");
+  Serial.print(I2C1_SDA);
+  Serial.print(", SCL=");
+  Serial.println(I2C1_SCL);
+  Wire1.begin(I2C1_SDA, I2C1_SCL);
+  
+  // Try to initialize MPU6050 on Bus 0
+  if (mpu.begin(0x68, &Wire)) {
     mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
     mpu.setGyroRange(MPU6050_RANGE_500_DEG);
     mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
-    Serial.println("Sensors: MPU6050 OK");
+    Serial.println("Sensors: MPU6050 OK on Bus 0");
     mpu_initialized = true;
   } else {
     Serial.println("Sensors: MPU6050 not found (skipping)");
     mpu_initialized = false;
   }
   
-  // Try to initialize VL53L1X
-  Serial.println("Sensors: Initializing VL53L1X on I2C...");
+  // Try to initialize VL53L1X on Bus 1
+  Serial.println("Sensors: Initializing VL53L1X on I2C Bus 1...");
   delay(100); // Give sensor time to power up
   
-  if (vl53.begin(0x29, &Wire)) {
-    Serial.println("Sensors: VL53L1X detected at 0x29");
+  if (vl53.begin(0x29, &Wire1)) {
+    Serial.println("Sensors: VL53L1X detected at 0x29 on Bus 1");
     delay(50);
     
     if (vl53.startRanging()) {
@@ -61,7 +73,7 @@ bool sensors_init() {
       vl53_initialized = false;
     }
   } else {
-    Serial.println("ERROR: VL53L1X not found at 0x29!");
+    Serial.println("ERROR: VL53L1X not found at 0x29 on Bus 1!");
     Serial.println("Check: SDA=GPIO19, SCL=GPIO20, VIN=3.3V, GND connected");
     vl53_initialized = false;
   }
