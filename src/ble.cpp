@@ -117,7 +117,7 @@ void ble_init() {
   
   pConfigChar = pService->createCharacteristic(
     CONFIG_CHAR_UUID,
-    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
   );
   pConfigChar->setCallbacks(new ConfigCharCallbacks());
   

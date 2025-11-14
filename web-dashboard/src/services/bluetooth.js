@@ -97,19 +97,42 @@ export class SmartStickBLE {
       throw new Error('Not connected to device');
     }
 
-    const configJSON = JSON.stringify(config);
-    const encoder = new TextEncoder();
-    await this.configChar.writeValue(encoder.encode(configJSON));
-
-    const response = await this.configChar.readValue();
-    const responseText = new TextDecoder().decode(response);
-    const result = JSON.parse(responseText);
-    
-    if (!result || typeof result.ok !== 'boolean') {
-      throw new Error('Invalid response from device');
-    }
-    
-    return result;
+    return new Promise((resolve, reject) => {
+      let timeout;
+      
+      const handleConfigResponse = (event) => {
+        clearTimeout(timeout);
+        this.configChar.removeEventListener('characteristicvaluechanged', handleConfigResponse);
+        
+        try {
+          const value = new TextDecoder().decode(event.target.value);
+          const result = JSON.parse(value);
+          
+          if (!result || typeof result.ok !== 'boolean') {
+            reject(new Error('Invalid response from device'));
+          } else {
+            resolve(result);
+          }
+        } catch (e) {
+          reject(new Error('Failed to parse config response'));
+        }
+      };
+      
+      this.configChar.addEventListener('characteristicvaluechanged', handleConfigResponse);
+      
+      timeout = setTimeout(() => {
+        this.configChar.removeEventListener('characteristicvaluechanged', handleConfigResponse);
+        reject(new Error('Config update timeout'));
+      }, 5000);
+      
+      const configJSON = JSON.stringify(config);
+      const encoder = new TextEncoder();
+      this.configChar.writeValue(encoder.encode(configJSON)).catch(err => {
+        clearTimeout(timeout);
+        this.configChar.removeEventListener('characteristicvaluechanged', handleConfigResponse);
+        reject(err);
+      });
+    });
   }
 
   isConnected() {

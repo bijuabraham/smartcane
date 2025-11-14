@@ -42,7 +42,7 @@ function App() {
       )}
 
       <Toaster
-        position="top-right"
+        position="bottom-left"
         toastOptions={{
           style: {
             background: '#1F2937',
