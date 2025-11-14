@@ -41,6 +41,7 @@ export class SmartStickBLE {
       this.configChar = await this.service.getCharacteristic(CONFIG_CHAR_UUID);
 
       await this.sensorDataChar.startNotifications();
+      await this.configChar.startNotifications();
       this.sensorDataChar.addEventListener('characteristicvaluechanged', (event) => {
         const value = new TextDecoder().decode(event.target.value);
         try {

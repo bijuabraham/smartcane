@@ -49,7 +49,8 @@ class ConfigCharCallbacks : public NimBLECharacteristicCallbacks {
         Serial.println(error.c_str());
         
         const char* response = "{\"ok\":false,\"err\":\"Invalid JSON\"}";
-        pCharacteristic->setValue(response);
+        size_t len = strlen(response);
+        pCharacteristic->setValue((uint8_t*)response, len);
         pCharacteristic->notify();
         return;
       }
@@ -78,12 +79,14 @@ class ConfigCharCallbacks : public NimBLECharacteristicCallbacks {
         
         Serial.println("BLE: Config updated successfully");
         const char* response = "{\"ok\":true}";
-        pCharacteristic->setValue(response);
+        size_t len = strlen(response);
+        pCharacteristic->setValue((uint8_t*)response, len);
         pCharacteristic->notify();
       } else {
         Serial.println("BLE: Config validation failed");
         const char* response = "{\"ok\":false,\"err\":\"Validation failed\"}";
-        pCharacteristic->setValue(response);
+        size_t len = strlen(response);
+        pCharacteristic->setValue((uint8_t*)response, len);
         pCharacteristic->notify();
       }
     }
