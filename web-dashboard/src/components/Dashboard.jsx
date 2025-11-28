@@ -13,8 +13,10 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, chartSta
     if (!chartStartTime || sensorHistory.length === 0) return [];
     
     return sensorHistory.map(data => ({
-      ...data,
       timeSeconds: Math.round((data.ts - chartStartTime) / 1000),
+      ax: data.imu?.ax ?? 0,
+      ay: data.imu?.ay ?? 0,
+      az: data.imu?.az ?? 0,
     }));
   }, [sensorHistory, chartStartTime]);
 
@@ -311,9 +313,9 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, chartSta
                       labelFormatter={(sec) => `Time: ${sec}s`}
                     />
                     <Legend wrapperStyle={{ color: '#9CA3AF' }} />
-                    <Line type="monotone" dataKey="imu.ax" stroke="#10B981" name="X" dot={false} isAnimationActive={false} connectNulls={false} />
-                    <Line type="monotone" dataKey="imu.ay" stroke="#3B82F6" name="Y" dot={false} isAnimationActive={false} connectNulls={false} />
-                    <Line type="monotone" dataKey="imu.az" stroke="#8B5CF6" name="Z" dot={false} isAnimationActive={false} connectNulls={false} />
+                    <Line type="monotone" dataKey="ax" stroke="#10B981" name="X" dot={false} isAnimationActive={false} connectNulls={false} />
+                    <Line type="monotone" dataKey="ay" stroke="#3B82F6" name="Y" dot={false} isAnimationActive={false} connectNulls={false} />
+                    <Line type="monotone" dataKey="az" stroke="#8B5CF6" name="Z" dot={false} isAnimationActive={false} connectNulls={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
