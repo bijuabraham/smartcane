@@ -37,6 +37,26 @@ bool sensors_init() {
   Serial.println(I2C_SCL);
   Wire.begin(I2C_SDA, I2C_SCL);
   
+  // Scan I2C bus to see what's connected
+  Serial.println("I2C: Scanning for devices...");
+  int devicesFound = 0;
+  for (uint8_t addr = 1; addr < 127; addr++) {
+    Wire.beginTransmission(addr);
+    if (Wire.endTransmission() == 0) {
+      Serial.print("I2C: Found device at 0x");
+      if (addr < 16) Serial.print("0");
+      Serial.print(addr, HEX);
+      if (addr == 0x29) Serial.print(" (VL53L1X)");
+      else if (addr == 0x68) Serial.print(" (MPU6050)");
+      else if (addr == 0x69) Serial.print(" (MPU6050 alt)");
+      Serial.println();
+      devicesFound++;
+    }
+  }
+  Serial.print("I2C: Scan complete. Found ");
+  Serial.print(devicesFound);
+  Serial.println(" device(s)");
+  
   // Try to initialize MPU6050 (address 0x68)
   if (mpu.begin(0x68, &Wire)) {
     mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
