@@ -51,10 +51,9 @@ void setup() {
   
   pinMode(SOS_BTN, INPUT_PULLUP);
   
-  // Temporarily disable haptics to debug I2C issues
-  // haptics_init();
+  // Initialize haptics (buzzer, LED, vibration motor)
+  haptics_init();
   
-  // haptics_led_set(true);
   Serial.println("Initializing sensors...");
   
   if (!sensors_init()) {
@@ -69,7 +68,9 @@ void setup() {
   Serial.println("\nInitializing BLE...");
   ble_init();
   
-  // haptics_led_set(false);
+  // Startup beep to confirm buzzer is working
+  haptics_trigger(HAPTIC_RFID);  // Quick beep
+  delay(100);
   
   Serial.println("\nSetup complete! Ready to go.\n");
   Serial.print("Sensor update period: ");
@@ -90,7 +91,7 @@ void setup() {
 void loop() {
   unsigned long now = millis();
   
-  // haptics_update();
+  haptics_update();
   ble_update();
   
   handle_sos_button(now);
@@ -140,7 +141,7 @@ void handle_sos_button(unsigned long now) {
     if (current_state == LOW && sos_button_last_state == HIGH) {
       Serial.println("SOS BUTTON PRESSED!");
       
-      // haptics_trigger(HAPTIC_SOS);
+      haptics_trigger(HAPTIC_SOS);
       
       StaticJsonDocument<64> doc;
       doc["event"] = "SOS_BUTTON_PRESSED";
@@ -198,7 +199,7 @@ void update_sensors(unsigned long now) {
     
     float fall_ax, fall_ay, fall_az;
     if (fall_detection_check(fall_ax, fall_ay, fall_az)) {
-      // haptics_trigger(HAPTIC_FALL);
+      haptics_trigger(HAPTIC_FALL);
       
       StaticJsonDocument<128> doc;
       doc["event"] = "FALL_DETECTED";
@@ -220,7 +221,7 @@ void update_sensors(unsigned long now) {
     if (now - last_obstacle_alert >= OBSTACLE_ALERT_COOLDOWN_MS) {
       last_obstacle_alert = now;
       
-      // haptics_trigger(HAPTIC_OBSTACLE);
+      haptics_trigger(HAPTIC_OBSTACLE);
       
       StaticJsonDocument<64> doc;
       doc["event"] = "OBSTACLE_NEAR";
@@ -273,7 +274,7 @@ void update_rfid(unsigned long now) {
     String current_uid = String(rfid.uid);
     
     if (current_uid != last_rfid_uid && !rfid_alert_sent) {
-      // haptics_trigger(HAPTIC_RFID);
+      haptics_trigger(HAPTIC_RFID);
       
       StaticJsonDocument<64> doc;
       doc["event"] = "RFID_SEEN";
