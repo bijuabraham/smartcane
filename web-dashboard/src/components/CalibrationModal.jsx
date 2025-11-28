@@ -38,6 +38,9 @@ export default function CalibrationModal({ isOpen, onClose, connection, onApplyT
       interval = setInterval(() => {
         setTimeRemaining(t => {
           if (t <= 1) {
+            if (connection && connection.stopCalibration) {
+              connection.stopCalibration();
+            }
             return 0;
           }
           return t - 1;
@@ -45,7 +48,7 @@ export default function CalibrationModal({ isOpen, onClose, connection, onApplyT
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [calibrationState, timeRemaining]);
+  }, [calibrationState, timeRemaining, connection]);
 
   const startCalibration = async () => {
     try {
