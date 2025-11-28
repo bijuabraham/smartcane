@@ -41,8 +41,8 @@ void fall_detection_update(const IMUData& imu) {
       break;
       
     case FALL_POTENTIAL:
-      if (accel_magnitude < FALL_MOTION_THRESHOLD) {
-        if (millis() - potential_fall_time >= FALL_STILLNESS_DURATION_MS) {
+      if (accel_magnitude < g_config.fall_motion_threshold) {
+        if (millis() - potential_fall_time >= g_config.fall_stillness_ms) {
           fall_state = FALL_CONFIRMED;
           Serial.println("Fall Detection: FALL CONFIRMED!");
         }
