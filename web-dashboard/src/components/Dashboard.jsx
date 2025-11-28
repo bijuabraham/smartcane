@@ -296,9 +296,9 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts =
                       labelStyle={{ color: '#9CA3AF' }}
                     />
                     <Legend wrapperStyle={{ color: '#9CA3AF' }} />
-                    <Line type="monotone" dataKey="imu.ax" stroke="#10B981" name="X" dot={false} />
-                    <Line type="monotone" dataKey="imu.ay" stroke="#3B82F6" name="Y" dot={false} />
-                    <Line type="monotone" dataKey="imu.az" stroke="#8B5CF6" name="Z" dot={false} />
+                    <Line type="monotone" dataKey="imu.ax" stroke="#10B981" name="X" dot={false} isAnimationActive={false} />
+                    <Line type="monotone" dataKey="imu.ay" stroke="#3B82F6" name="Y" dot={false} isAnimationActive={false} />
+                    <Line type="monotone" dataKey="imu.az" stroke="#8B5CF6" name="Z" dot={false} isAnimationActive={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
