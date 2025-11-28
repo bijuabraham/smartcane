@@ -131,15 +131,21 @@ void loop() {
 // ===================================================================
 
 void handle_sos_button(unsigned long now) {
+  static bool sos_triggered = false;
   bool current_state = digitalRead(SOS_BTN);
   
+  // Detect state change and start debounce timer
   if (current_state != sos_button_last_state) {
     sos_button_debounce_time = now;
+    sos_button_last_state = current_state;
+    Serial.printf("SOS Button state changed to: %s\n", current_state == LOW ? "PRESSED" : "RELEASED");
   }
   
-  if ((now - sos_button_debounce_time) > SOS_DEBOUNCE_MS) {
-    if (current_state == LOW && sos_button_last_state == HIGH) {
-      Serial.println("SOS BUTTON PRESSED!");
+  // After debounce period, trigger action on button press (LOW)
+  if (current_state == LOW && (now - sos_button_debounce_time) > SOS_DEBOUNCE_MS) {
+    if (!sos_triggered) {
+      sos_triggered = true;
+      Serial.println("SOS BUTTON TRIGGERED!");
       
       haptics_trigger(HAPTIC_SOS);
       
@@ -150,9 +156,10 @@ void handle_sos_button(unsigned long now) {
       serializeJson(doc, json);
       ble_send_alert(json);
     }
+  } else if (current_state == HIGH) {
+    // Reset trigger when button is released
+    sos_triggered = false;
   }
-  
-  sos_button_last_state = current_state;
 }
 
 // ===================================================================
