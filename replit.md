@@ -86,7 +86,9 @@ All pin assignments are in `src/pins.h` and **must be verified** against your sp
 ### Runtime Configuration (via BLE)
 - `sensor_period_ms`: Sensor sampling rate (100-1000ms, default: 200ms)
 - `obstacle_threshold_mm`: Obstacle alert distance (200-2000mm, default: 800mm)
-- `fall_ax_threshold`: Fall detection sensitivity (0.5-5.0g, default: 2.2g)
+- `fall_ax_threshold`: Fall impact threshold (0.5-5.0g, default: 2.2g)
+- `fall_motion_threshold`: Stillness threshold (0.1-1.0g, default: 0.3g)
+- `fall_stillness_ms`: Stillness duration required (200-5000ms, default: 1000ms)
 - `ble_tx_power`: BLE transmission power (-12 to 9 dBm, default: 7dBm)
 
 ### Compile-Time Options (src/config.h)
@@ -168,6 +170,14 @@ Use nRF Connect or similar BLE scanner:
 4. Write configuration updates to CONFIG
 
 ## Recent Changes
+- 2025-11-28: Fall detection calibration feature added
+  - New calibration mode records actual fall data for threshold tuning
+  - Dashboard calibration button opens recording wizard
+  - Records peak acceleration (impact spike) and minimum motion (stillness)
+  - Suggests optimal threshold values based on recorded data
+  - One-click application of suggested values to device config
+  - Simulator supports calibration testing without hardware
+  - BLE CALIBRATION characteristic (UUID: ...b0) for command/response
 - 2025-11-01: Backend simulator and mode toggle added
   - Created Node.js WebSocket simulator service for testing without hardware
   - Implemented realistic sensor data generation matching firmware format
