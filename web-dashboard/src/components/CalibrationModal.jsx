@@ -29,8 +29,6 @@ export default function CalibrationModal({ isOpen, onClose, connection, onApplyT
 
     if (typeof connection.onCalibration === 'function') {
       connection.onCalibration(handleCalibration);
-    } else if (connection.onCalibrationCallback !== undefined) {
-      connection.onCalibrationCallback = handleCalibration;
     }
   }, [connection]);
 

@@ -49,17 +49,15 @@ export function useSmartStick() {
       }
     };
     
+    deviceRef.current.onSensorData(handleSensorData);
+    deviceRef.current.onAlert(handleAlert);
+    
     if (mode === 'hardware') {
-      deviceRef.current.onSensorData = handleSensorData;
-      deviceRef.current.onAlert = handleAlert;
       deviceRef.current.onDisconnect = () => {
         setConnected(false);
         setSensorData(null);
         toast.error('Disconnected from Smart Stick');
       };
-    } else {
-      deviceRef.current.onSensorData(handleSensorData);
-      deviceRef.current.onAlert(handleAlert);
     }
 
     return () => {

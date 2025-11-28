@@ -13,10 +13,22 @@ export class SmartStickBLE {
     this.alertsChar = null;
     this.configChar = null;
     this.calibrationChar = null;
-    this.onSensorData = null;
-    this.onAlert = null;
-    this.onCalibration = null;
+    this.onSensorDataCallback = null;
+    this.onAlertCallback = null;
+    this.onCalibrationCallback = null;
     this.onDisconnect = null;
+  }
+  
+  onSensorData(callback) {
+    this.onSensorDataCallback = callback;
+  }
+  
+  onAlert(callback) {
+    this.onAlertCallback = callback;
+  }
+  
+  onCalibration(callback) {
+    this.onCalibrationCallback = callback;
   }
 
   async connect() {
@@ -52,8 +64,9 @@ export class SmartStickBLE {
         const value = new TextDecoder().decode(event.target.value);
         try {
           const data = JSON.parse(value);
-          if (this.onCalibration) {
-            this.onCalibration(data);
+          console.log('BLE calibration data received:', data);
+          if (this.onCalibrationCallback) {
+            this.onCalibrationCallback(data);
           }
         } catch (e) {
           console.error('Failed to parse calibration data:', e);
@@ -63,8 +76,8 @@ export class SmartStickBLE {
         const value = new TextDecoder().decode(event.target.value);
         try {
           const data = JSON.parse(value);
-          if (this.onSensorData) {
-            this.onSensorData(data);
+          if (this.onSensorDataCallback) {
+            this.onSensorDataCallback(data);
           }
         } catch (e) {
           console.error('Failed to parse sensor data:', e);
@@ -76,8 +89,8 @@ export class SmartStickBLE {
         const value = new TextDecoder().decode(event.target.value);
         try {
           const data = JSON.parse(value);
-          if (this.onAlert) {
-            this.onAlert(data);
+          if (this.onAlertCallback) {
+            this.onAlertCallback(data);
           }
         } catch (e) {
           console.error('Failed to parse alert:', e);
