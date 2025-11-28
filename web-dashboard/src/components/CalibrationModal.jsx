@@ -27,8 +27,8 @@ export default function CalibrationModal({ isOpen, onClose, connection, onApplyT
       }
     };
 
-    if (connection.onCalibration) {
-      connection.onCalibration = handleCalibration;
+    if (typeof connection.onCalibration === 'function') {
+      connection.onCalibration(handleCalibration);
     } else if (connection.onCalibrationCallback !== undefined) {
       connection.onCalibrationCallback = handleCalibration;
     }
@@ -55,7 +55,7 @@ export default function CalibrationModal({ isOpen, onClose, connection, onApplyT
       setTimeRemaining(duration);
       setResults(null);
       
-      if (connection.startCalibration) {
+      if (connection && connection.startCalibration) {
         await connection.startCalibration(duration * 1000);
       }
     } catch (error) {
@@ -66,7 +66,7 @@ export default function CalibrationModal({ isOpen, onClose, connection, onApplyT
 
   const stopCalibration = async () => {
     try {
-      if (connection.stopCalibration) {
+      if (connection && connection.stopCalibration) {
         await connection.stopCalibration();
       }
     } catch (error) {
