@@ -15,11 +15,11 @@
 #define I2C_SCL 20
 
 // SPI Pins (for MFRC522 RFID reader)
-#define SPI_SCK  12
-#define SPI_MISO 13
-#define SPI_MOSI 11
-#define RFID_CS  10
-#define RFID_RST 14
+#define SPI_SCK  5
+#define SPI_MISO 7
+#define SPI_MOSI 6
+#define RFID_CS  21
+#define RFID_RST 38
 
 // User Interface Pins
 #define SOS_BTN    15   // Active LOW with internal pullup
