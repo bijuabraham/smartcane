@@ -84,8 +84,19 @@ class ConfigCharCallbacks : public NimBLECharacteristicCallbacks {
         }
         
         Serial.println("BLE: Config updated successfully");
-        const char* response = "{\"ok\":true}";
-        size_t len = strlen(response);
+        
+        // Send success response with updated config
+        StaticJsonDocument<256> responseDoc;
+        responseDoc["ok"] = true;
+        responseDoc["sensor_period_ms"] = g_config.sensor_period_ms;
+        responseDoc["obstacle_threshold_mm"] = g_config.obstacle_threshold_mm;
+        responseDoc["fall_ax_threshold"] = g_config.fall_ax_threshold;
+        responseDoc["fall_motion_threshold"] = g_config.fall_motion_threshold;
+        responseDoc["fall_stillness_ms"] = g_config.fall_stillness_ms;
+        responseDoc["ble_tx_power"] = g_config.ble_tx_power;
+        
+        char response[256];
+        size_t len = serializeJson(responseDoc, response, sizeof(response));
         pCharacteristic->setValue((uint8_t*)response, len);
         pCharacteristic->notify();
       } else {
@@ -98,6 +109,26 @@ class ConfigCharCallbacks : public NimBLECharacteristicCallbacks {
     }
   }
 };
+
+// ===================================================================
+// Helper: Serialize current config to BLE characteristic
+// ===================================================================
+
+static void ble_sync_config() {
+  if (!pConfigChar) return;
+  
+  StaticJsonDocument<256> doc;
+  doc["sensor_period_ms"] = g_config.sensor_period_ms;
+  doc["obstacle_threshold_mm"] = g_config.obstacle_threshold_mm;
+  doc["fall_ax_threshold"] = g_config.fall_ax_threshold;
+  doc["fall_motion_threshold"] = g_config.fall_motion_threshold;
+  doc["fall_stillness_ms"] = g_config.fall_stillness_ms;
+  doc["ble_tx_power"] = g_config.ble_tx_power;
+  
+  char json[256];
+  size_t len = serializeJson(doc, json, sizeof(json));
+  pConfigChar->setValue((uint8_t*)json, len);
+}
 
 // ===================================================================
 // BLE Initialization
@@ -130,10 +161,10 @@ void ble_init() {
   );
   pConfigChar->setCallbacks(new ConfigCharCallbacks());
   
-  const char* initialConfig = "{\"sensor_period_ms\":200,\"obstacle_threshold_mm\":800,\"fall_ax_threshold\":2.2,\"fall_motion_threshold\":0.3,\"fall_stillness_ms\":1000,\"ble_tx_power\":7}";
-  pConfigChar->setValue(initialConfig);
-  
   pService->start();
+  
+  // Set initial config from current g_config values
+  ble_sync_config();
   
   NimBLEAdvertising* pAdvertising = NimBLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SMART_STICK_SVC_UUID);

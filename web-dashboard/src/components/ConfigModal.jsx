@@ -30,7 +30,12 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
   };
 
   const updateValue = (key, value) => {
-    setConfig(prev => ({ ...prev, [key]: parseFloat(value) || 0 }));
+    // Use parseInt for integer fields, parseFloat for decimal fields
+    const integerFields = ['sensor_period_ms', 'obstacle_threshold_mm', 'fall_stillness_ms', 'ble_tx_power'];
+    const parsedValue = integerFields.includes(key) 
+      ? parseInt(value, 10) || 0 
+      : parseFloat(value) || 0;
+    setConfig(prev => ({ ...prev, [key]: parsedValue }));
   };
 
   return (
