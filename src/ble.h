@@ -12,6 +12,7 @@
 #define SENSOR_DATA_CHAR_UUID   "12345678-1234-1234-1234-1234567890ad"
 #define ALERTS_CHAR_UUID        "12345678-1234-1234-1234-1234567890ae"
 #define CONFIG_CHAR_UUID        "12345678-1234-1234-1234-1234567890af"
+#define CALIBRATION_CHAR_UUID   "12345678-1234-1234-1234-1234567890b0"
 
 #define BLE_DEVICE_NAME "SmartStick"
 
@@ -33,6 +34,9 @@ void ble_set_tx_power(int8_t power);
 extern NimBLECharacteristic* pSensorDataChar;
 extern NimBLECharacteristic* pAlertsChar;
 extern NimBLECharacteristic* pConfigChar;
+extern NimBLECharacteristic* pCalibrationChar;
 extern NimBLEServer* pServer;
+
+void ble_send_calibration_result();
 
 #endif // BLE_H

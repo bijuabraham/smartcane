@@ -1,7 +1,7 @@
-import { Bluetooth, BluetoothOff, Activity, Radio, CreditCard, Battery, Gauge, Settings, Cpu, Wifi, AlertTriangle, User, Bell, Clock } from 'lucide-react';
+import { Bluetooth, BluetoothOff, Activity, Radio, CreditCard, Battery, Gauge, Settings, Cpu, Wifi, AlertTriangle, User, Bell, Clock, Target } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts = [], onConnect, onDisconnect, onConfigOpen, onModeChange }) {
+export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts = [], onConnect, onDisconnect, onConfigOpen, onCalibrationOpen, onModeChange }) {
   const formatValue = (value) => {
     if (value === null || value === undefined) return 'N/A';
     if (typeof value === 'number') return value.toFixed(2);
@@ -128,13 +128,23 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts =
               
               <div className="flex gap-3">
               {connected && (
-                <button
-                  onClick={onConfigOpen}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                >
-                  <Settings size={20} />
-                  <span className="hidden sm:inline">Config</span>
-                </button>
+                <>
+                  <button
+                    onClick={onCalibrationOpen}
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg transition-colors"
+                    title="Calibrate fall detection"
+                  >
+                    <Target size={20} />
+                    <span className="hidden sm:inline">Calibrate</span>
+                  </button>
+                  <button
+                    onClick={onConfigOpen}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                  >
+                    <Settings size={20} />
+                    <span className="hidden sm:inline">Config</span>
+                  </button>
+                </>
               )}
                 <button
                   onClick={connected ? onDisconnect : onConnect}

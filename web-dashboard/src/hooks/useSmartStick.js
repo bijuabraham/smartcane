@@ -128,6 +128,7 @@ export function useSmartStick() {
     alerts,
     sensorHistory,
     currentConfig,
+    connection: deviceRef.current,
     connect,
     disconnect,
     updateConfig,

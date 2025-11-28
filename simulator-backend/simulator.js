@@ -4,6 +4,8 @@ export class SmartStickSimulator {
       sensor_period_ms: 200,
       obstacle_threshold_mm: 800,
       fall_ax_threshold: 2.2,
+      fall_motion_threshold: 0.3,
+      fall_stillness_ms: 1000,
       ble_tx_power: 7,
     };
     
@@ -13,6 +15,19 @@ export class SmartStickSimulator {
       obstacleNear: false,
       lastRFID: null,
       sosActive: false,
+    };
+    
+    this.calibration = {
+      active: false,
+      complete: false,
+      startTime: 0,
+      durationMs: 5000,
+      peakAcceleration: 0,
+      minMotion: 999,
+      peakAx: 0,
+      peakAy: 0,
+      peakAz: 0,
+      peakDetected: false,
     };
     
     this.time = 0;
@@ -159,10 +174,82 @@ export class SmartStickSimulator {
       sensor_period_ms: newConfig.sensor_period_ms ?? this.config.sensor_period_ms,
       obstacle_threshold_mm: newConfig.obstacle_threshold_mm ?? this.config.obstacle_threshold_mm,
       fall_ax_threshold: newConfig.fall_ax_threshold ?? this.config.fall_ax_threshold,
+      fall_motion_threshold: newConfig.fall_motion_threshold ?? this.config.fall_motion_threshold,
+      fall_stillness_ms: newConfig.fall_stillness_ms ?? this.config.fall_stillness_ms,
       ble_tx_power: newConfig.ble_tx_power ?? this.config.ble_tx_power,
     };
     
-    return { ok: true };
+    return { ok: true, ...this.config };
+  }
+  
+  startCalibration(durationMs = 5000) {
+    this.calibration = {
+      active: true,
+      complete: false,
+      startTime: Date.now(),
+      durationMs: durationMs,
+      peakAcceleration: 0,
+      minMotion: 999,
+      peakAx: 0,
+      peakAy: 0,
+      peakAz: 0,
+      peakDetected: false,
+    };
+    console.log(`Calibration started for ${durationMs}ms`);
+  }
+  
+  stopCalibration() {
+    if (this.calibration.active) {
+      this.calibration.active = false;
+      this.calibration.complete = true;
+      console.log('Calibration stopped');
+    }
+  }
+  
+  updateCalibration(ax, ay, az) {
+    if (!this.calibration.active) return;
+    
+    const elapsed = Date.now() - this.calibration.startTime;
+    if (elapsed >= this.calibration.durationMs) {
+      this.stopCalibration();
+      return;
+    }
+    
+    const magnitude = Math.sqrt(ax * ax + ay * ay + az * az);
+    
+    if (magnitude > this.calibration.peakAcceleration) {
+      this.calibration.peakAcceleration = magnitude;
+      this.calibration.peakAx = ax;
+      this.calibration.peakAy = ay;
+      this.calibration.peakAz = az;
+      
+      if (magnitude > 1.5) {
+        this.calibration.peakDetected = true;
+      }
+    }
+    
+    if (this.calibration.peakDetected && magnitude < this.calibration.minMotion) {
+      this.calibration.minMotion = magnitude;
+    }
+  }
+  
+  getCalibrationResults() {
+    const cal = this.calibration;
+    const result = {
+      status: cal.active ? 'active' : (cal.complete ? 'complete' : 'idle'),
+      peak_acceleration: Math.round(cal.peakAcceleration * 1000) / 1000,
+      min_motion: cal.minMotion < 900 ? Math.round(cal.minMotion * 1000) / 1000 : 0,
+      peak_ax: Math.round(cal.peakAx * 1000) / 1000,
+      peak_ay: Math.round(cal.peakAy * 1000) / 1000,
+      peak_az: Math.round(cal.peakAz * 1000) / 1000,
+    };
+    
+    if (cal.complete && cal.peakAcceleration > 1.5) {
+      result.suggested_impact_threshold = Math.round((cal.peakAcceleration - 1.0) * 0.8 * 100) / 100;
+      result.suggested_motion_threshold = Math.round(cal.minMotion * 1.2 * 100) / 100;
+    }
+    
+    return result;
   }
   
   stop() {

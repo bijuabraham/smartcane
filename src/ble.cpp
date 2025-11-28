@@ -1,5 +1,6 @@
 #include "ble.h"
 #include "config.h"
+#include "fall_detection.h"
 #include <ArduinoJson.h>
 
 // ===================================================================
@@ -10,6 +11,7 @@ NimBLEServer* pServer = nullptr;
 NimBLECharacteristic* pSensorDataChar = nullptr;
 NimBLECharacteristic* pAlertsChar = nullptr;
 NimBLECharacteristic* pConfigChar = nullptr;
+NimBLECharacteristic* pCalibrationChar = nullptr;
 
 static bool deviceConnected = false;
 static bool oldDeviceConnected = false;
@@ -111,6 +113,89 @@ class ConfigCharCallbacks : public NimBLECharacteristicCallbacks {
 };
 
 // ===================================================================
+// Calibration Characteristic Callbacks
+// ===================================================================
+
+class CalibrationCharCallbacks : public NimBLECharacteristicCallbacks {
+  void onWrite(NimBLECharacteristic* pCharacteristic) {
+    std::string value = pCharacteristic->getValue();
+    
+    if (value.length() > 0) {
+      Serial.println("BLE: Received calibration command");
+      
+      StaticJsonDocument<128> doc;
+      DeserializationError error = deserializeJson(doc, value.c_str());
+      
+      if (error) {
+        Serial.print("BLE: Calibration JSON parse error: ");
+        Serial.println(error.c_str());
+        return;
+      }
+      
+      if (doc.containsKey("cmd")) {
+        const char* cmd = doc["cmd"];
+        
+        if (strcmp(cmd, "start") == 0) {
+          unsigned long duration = doc["duration_ms"] | 5000;
+          fall_calibration_start(duration);
+          
+          StaticJsonDocument<128> responseDoc;
+          responseDoc["status"] = "started";
+          responseDoc["duration_ms"] = duration;
+          
+          char response[128];
+          size_t len = serializeJson(responseDoc, response, sizeof(response));
+          pCharacteristic->setValue((uint8_t*)response, len);
+          pCharacteristic->notify();
+        }
+        else if (strcmp(cmd, "stop") == 0) {
+          fall_calibration_stop();
+          ble_send_calibration_result();
+        }
+        else if (strcmp(cmd, "status") == 0) {
+          ble_send_calibration_result();
+        }
+      }
+    }
+  }
+};
+
+// ===================================================================
+// Send Calibration Result over BLE
+// ===================================================================
+
+void ble_send_calibration_result() {
+  if (!pCalibrationChar) return;
+  
+  CalibrationData cal = fall_calibration_get_results();
+  
+  StaticJsonDocument<256> doc;
+  doc["status"] = cal.active ? "active" : (cal.complete ? "complete" : "idle");
+  doc["peak_acceleration"] = cal.peak_acceleration;
+  doc["min_motion"] = cal.min_motion < 900 ? cal.min_motion : 0.0;  // If still at 999, report 0
+  doc["peak_ax"] = cal.peak_ax;
+  doc["peak_ay"] = cal.peak_ay;
+  doc["peak_az"] = cal.peak_az;
+  
+  // Suggest threshold values (with some headroom)
+  if (cal.complete && cal.peak_acceleration > 1.5) {
+    // Subtract 1.0g (resting) and add margin
+    float suggested_impact = (cal.peak_acceleration - 1.0) * 0.8;
+    float suggested_motion = cal.min_motion * 1.2;
+    doc["suggested_impact_threshold"] = suggested_impact;
+    doc["suggested_motion_threshold"] = suggested_motion;
+  }
+  
+  char json[256];
+  size_t len = serializeJson(doc, json, sizeof(json));
+  pCalibrationChar->setValue((uint8_t*)json, len);
+  pCalibrationChar->notify();
+  
+  Serial.print("BLE Calibration: ");
+  Serial.println(json);
+}
+
+// ===================================================================
 // Helper: Serialize current config to BLE characteristic
 // ===================================================================
 
@@ -160,6 +245,12 @@ void ble_init() {
     NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
   );
   pConfigChar->setCallbacks(new ConfigCharCallbacks());
+  
+  pCalibrationChar = pService->createCharacteristic(
+    CALIBRATION_CHAR_UUID,
+    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
+  );
+  pCalibrationChar->setCallbacks(new CalibrationCharCallbacks());
   
   pService->start();
   

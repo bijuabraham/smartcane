@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 import { Dashboard } from './components/Dashboard';
 import { ConfigModal } from './components/ConfigModal';
+import CalibrationModal from './components/CalibrationModal';
 import { useSmartStick } from './hooks/useSmartStick';
 
 function App() {
   const [showConfig, setShowConfig] = useState(false);
-  const { mode, connected, sensorData, sensorHistory, alerts, currentConfig, connect, disconnect, updateConfig, switchMode } = useSmartStick();
+  const [showCalibration, setShowCalibration] = useState(false);
+  const { mode, connected, sensorData, sensorHistory, alerts, currentConfig, connection, connect, disconnect, updateConfig, switchMode } = useSmartStick();
 
   const handleConfigSave = async (config) => {
     try {
@@ -16,6 +18,19 @@ function App() {
       }
     } catch (error) {
       console.error('Failed to update config:', error);
+    }
+  };
+
+  const handleApplyThresholds = async (thresholds) => {
+    try {
+      const newConfig = { ...currentConfig, ...thresholds };
+      const response = await updateConfig(newConfig);
+      if (response && response.ok) {
+        toast.success('Fall detection thresholds updated!');
+      }
+    } catch (error) {
+      console.error('Failed to apply thresholds:', error);
+      toast.error('Failed to apply thresholds');
     }
   };
 
@@ -30,6 +45,7 @@ function App() {
         onConnect={connect}
         onDisconnect={disconnect}
         onConfigOpen={() => setShowConfig(true)}
+        onCalibrationOpen={() => setShowCalibration(true)}
         onModeChange={switchMode}
       />
       
@@ -40,6 +56,13 @@ function App() {
           initialConfig={currentConfig}
         />
       )}
+
+      <CalibrationModal
+        isOpen={showCalibration}
+        onClose={() => setShowCalibration(false)}
+        connection={connection}
+        onApplyThresholds={handleApplyThresholds}
+      />
 
       <Toaster
         position="bottom-left"

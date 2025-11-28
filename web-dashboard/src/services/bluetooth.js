@@ -2,6 +2,7 @@ const SMART_STICK_SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
 const SENSOR_DATA_CHAR_UUID = '12345678-1234-1234-1234-1234567890ad';
 const ALERTS_CHAR_UUID = '12345678-1234-1234-1234-1234567890ae';
 const CONFIG_CHAR_UUID = '12345678-1234-1234-1234-1234567890af';
+const CALIBRATION_CHAR_UUID = '12345678-1234-1234-1234-1234567890b0';
 
 export class SmartStickBLE {
   constructor() {
@@ -11,8 +12,10 @@ export class SmartStickBLE {
     this.sensorDataChar = null;
     this.alertsChar = null;
     this.configChar = null;
+    this.calibrationChar = null;
     this.onSensorData = null;
     this.onAlert = null;
+    this.onCalibration = null;
     this.onDisconnect = null;
   }
 
@@ -39,9 +42,23 @@ export class SmartStickBLE {
       this.sensorDataChar = await this.service.getCharacteristic(SENSOR_DATA_CHAR_UUID);
       this.alertsChar = await this.service.getCharacteristic(ALERTS_CHAR_UUID);
       this.configChar = await this.service.getCharacteristic(CONFIG_CHAR_UUID);
+      this.calibrationChar = await this.service.getCharacteristic(CALIBRATION_CHAR_UUID);
 
       await this.sensorDataChar.startNotifications();
       await this.configChar.startNotifications();
+      await this.calibrationChar.startNotifications();
+      
+      this.calibrationChar.addEventListener('characteristicvaluechanged', (event) => {
+        const value = new TextDecoder().decode(event.target.value);
+        try {
+          const data = JSON.parse(value);
+          if (this.onCalibration) {
+            this.onCalibration(data);
+          }
+        } catch (e) {
+          console.error('Failed to parse calibration data:', e);
+        }
+      });
       this.sensorDataChar.addEventListener('characteristicvaluechanged', (event) => {
         const value = new TextDecoder().decode(event.target.value);
         try {
@@ -138,5 +155,35 @@ export class SmartStickBLE {
 
   isConnected() {
     return this.device && this.device.gatt && this.device.gatt.connected;
+  }
+  
+  async startCalibration(durationMs = 5000) {
+    if (!this.calibrationChar) {
+      throw new Error('Not connected to device');
+    }
+    
+    const cmd = JSON.stringify({ cmd: 'start', duration_ms: durationMs });
+    const encoder = new TextEncoder();
+    await this.calibrationChar.writeValue(encoder.encode(cmd));
+  }
+  
+  async stopCalibration() {
+    if (!this.calibrationChar) {
+      throw new Error('Not connected to device');
+    }
+    
+    const cmd = JSON.stringify({ cmd: 'stop' });
+    const encoder = new TextEncoder();
+    await this.calibrationChar.writeValue(encoder.encode(cmd));
+  }
+  
+  async getCalibrationStatus() {
+    if (!this.calibrationChar) {
+      throw new Error('Not connected to device');
+    }
+    
+    const cmd = JSON.stringify({ cmd: 'status' });
+    const encoder = new TextEncoder();
+    await this.calibrationChar.writeValue(encoder.encode(cmd));
   }
 }

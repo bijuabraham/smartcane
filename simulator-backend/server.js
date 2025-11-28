@@ -39,6 +39,24 @@ wss.on('connection', (ws) => {
         }));
       } else if (data.type === 'triggerSOS') {
         simulator.triggerSOS();
+      } else if (data.type === 'startCalibration') {
+        const duration = data.duration_ms || 5000;
+        simulator.startCalibration(duration);
+        ws.send(JSON.stringify({
+          type: 'calibration',
+          data: { status: 'started', duration_ms: duration }
+        }));
+      } else if (data.type === 'stopCalibration') {
+        simulator.stopCalibration();
+        ws.send(JSON.stringify({
+          type: 'calibration',
+          data: simulator.getCalibrationResults()
+        }));
+      } else if (data.type === 'getCalibrationStatus') {
+        ws.send(JSON.stringify({
+          type: 'calibration',
+          data: simulator.getCalibrationResults()
+        }));
       }
     } catch (error) {
       console.error('Error processing message:', error);

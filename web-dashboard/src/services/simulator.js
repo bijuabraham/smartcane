@@ -3,8 +3,10 @@ export class SmartStickSimulator {
     this.ws = null;
     this.onSensorDataCallback = null;
     this.onAlertCallback = null;
+    this.onCalibrationCallback = null;
     this.connected = false;
     this.currentConfig = null;
+    this.calibrationResult = null;
   }
 
   async connect() {
@@ -36,6 +38,11 @@ export class SmartStickSimulator {
               this.currentConfig = message.data;
             } else if (message.type === 'configResponse') {
               console.log('Config updated:', message.data);
+            } else if (message.type === 'calibration') {
+              this.calibrationResult = message.data;
+              if (this.onCalibrationCallback) {
+                this.onCalibrationCallback(message.data);
+              }
             }
           } catch (error) {
             console.error('Error parsing simulator message:', error);
@@ -120,6 +127,37 @@ export class SmartStickSimulator {
     if (this.connected && this.ws) {
       this.ws.send(JSON.stringify({ type: 'triggerSOS' }));
     }
+  }
+
+  onCalibration(callback) {
+    this.onCalibrationCallback = callback;
+  }
+
+  async startCalibration(durationMs = 5000) {
+    if (!this.connected) {
+      throw new Error('Not connected to simulator');
+    }
+    
+    this.ws.send(JSON.stringify({
+      type: 'startCalibration',
+      duration_ms: durationMs
+    }));
+  }
+
+  async stopCalibration() {
+    if (!this.connected) {
+      throw new Error('Not connected to simulator');
+    }
+    
+    this.ws.send(JSON.stringify({ type: 'stopCalibration' }));
+  }
+
+  async getCalibrationStatus() {
+    if (!this.connected) {
+      throw new Error('Not connected to simulator');
+    }
+    
+    this.ws.send(JSON.stringify({ type: 'getCalibrationStatus' }));
   }
 
   isConnected() {
