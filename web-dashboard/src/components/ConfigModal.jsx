@@ -95,13 +95,13 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
                 <input
                   type="number"
                   min="0.5"
-                  max="5.0"
+                  max="20.0"
                   step="0.1"
                   value={config.fall_ax_threshold}
                   onChange={(e) => updateValue('fall_ax_threshold', e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">Acceleration spike to trigger detection (0.5-5.0g, default: 2.2g)</p>
+                <p className="text-xs text-gray-500 mt-1">Acceleration spike to trigger detection (0.5-20g, default: 2.2g)</p>
               </div>
 
               <div>
@@ -111,13 +111,13 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
                 <input
                   type="number"
                   min="0.1"
-                  max="1.0"
+                  max="2.0"
                   step="0.05"
                   value={config.fall_motion_threshold}
                   onChange={(e) => updateValue('fall_motion_threshold', e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">Motion must drop below this to confirm fall (0.1-1.0g, default: 0.3g)</p>
+                <p className="text-xs text-gray-500 mt-1">Motion must drop below this to confirm fall (0.1-2.0g, default: 0.3g)</p>
               </div>
 
               <div>

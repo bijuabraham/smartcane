@@ -31,8 +31,8 @@ struct Config {
   bool validate() {
     if (sensor_period_ms < 100 || sensor_period_ms > 1000) return false;
     if (obstacle_threshold_mm < 200 || obstacle_threshold_mm > 2000) return false;
-    if (fall_ax_threshold < 0.5 || fall_ax_threshold > 5.0) return false;
-    if (fall_motion_threshold < 0.1 || fall_motion_threshold > 1.0) return false;
+    if (fall_ax_threshold < 0.5 || fall_ax_threshold > 20.0) return false;
+    if (fall_motion_threshold < 0.1 || fall_motion_threshold > 2.0) return false;
     if (fall_stillness_ms < 200 || fall_stillness_ms > 5000) return false;
     if (ble_tx_power < -12 || ble_tx_power > 9) return false;
     return true;
