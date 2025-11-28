@@ -22,14 +22,14 @@
 #define RFID_RST 38
 
 // User Interface Pins
-#define SOS_BTN    15   // Active LOW with internal pullup
+#define SOS_BTN    4    // Active LOW with internal pullup
 #define BUZZER     2    // Digital output for piezo buzzer
 #define VIB_MOTOR  3    // Digital output (or PWM for variable intensity)
 #define LED        1    // Status LED (active HIGH)
 
 // Battery Monitoring (optional)
 // Comment out the next line if battery monitoring is not wired
-#define BATTERY_ADC 4   // ADC pin for battery voltage divider
+#define BATTERY_ADC 14  // ADC pin for battery voltage divider
 
 // ===================================================================
 // Pin Validation
