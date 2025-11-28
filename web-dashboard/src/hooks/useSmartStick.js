@@ -21,9 +21,14 @@ export function useSmartStick() {
     }
     
     const handleSensorData = (data) => {
-      setSensorData(data);
+      // Add receive timestamp for consistent charting (hardware sends millis, simulator sends Date.now)
+      const dataWithTimestamp = {
+        ...data,
+        ts: Date.now()
+      };
+      setSensorData(dataWithTimestamp);
       setSensorHistory(prev => {
-        const newData = [...prev, data];
+        const newData = [...prev, dataWithTimestamp];
         // Keep only last 60 seconds of data (300 points at 200ms intervals)
         return newData.slice(-300);
       });
