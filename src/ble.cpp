@@ -66,6 +66,12 @@ class ConfigCharCallbacks : public NimBLECharacteristicCallbacks {
       if (doc.containsKey("fall_ax_threshold")) {
         new_config.fall_ax_threshold = doc["fall_ax_threshold"];
       }
+      if (doc.containsKey("fall_motion_threshold")) {
+        new_config.fall_motion_threshold = doc["fall_motion_threshold"];
+      }
+      if (doc.containsKey("fall_stillness_ms")) {
+        new_config.fall_stillness_ms = doc["fall_stillness_ms"];
+      }
       if (doc.containsKey("ble_tx_power")) {
         new_config.ble_tx_power = doc["ble_tx_power"];
       }
@@ -124,7 +130,7 @@ void ble_init() {
   );
   pConfigChar->setCallbacks(new ConfigCharCallbacks());
   
-  const char* initialConfig = "{\"sensor_period_ms\":200,\"obstacle_threshold_mm\":800,\"fall_ax_threshold\":2.2,\"ble_tx_power\":7}";
+  const char* initialConfig = "{\"sensor_period_ms\":200,\"obstacle_threshold_mm\":800,\"fall_ax_threshold\":2.2,\"fall_motion_threshold\":0.3,\"fall_stillness_ms\":1000,\"ble_tx_power\":7}";
   pConfigChar->setValue(initialConfig);
   
   pService->start();

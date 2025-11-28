@@ -6,6 +6,8 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
     sensor_period_ms: 200,
     obstacle_threshold_mm: 800,
     fall_ax_threshold: 2.2,
+    fall_motion_threshold: 0.3,
+    fall_stillness_ms: 1000,
     ble_tx_power: 7,
   });
 
@@ -15,6 +17,8 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
         sensor_period_ms: initialConfig.sensor_period_ms ?? 200,
         obstacle_threshold_mm: initialConfig.obstacle_threshold_mm ?? 800,
         fall_ax_threshold: initialConfig.fall_ax_threshold ?? 2.2,
+        fall_motion_threshold: initialConfig.fall_motion_threshold ?? 0.3,
+        fall_stillness_ms: initialConfig.fall_stillness_ms ?? 1000,
         ble_tx_power: initialConfig.ble_tx_power ?? 7,
       });
     }
@@ -75,20 +79,58 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
             <p className="text-xs text-gray-500 mt-1">Range: 200-2000mm (default: 800mm)</p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Fall Detection Threshold (g)
-            </label>
-            <input
-              type="number"
-              min="0.5"
-              max="5.0"
-              step="0.1"
-              value={config.fall_ax_threshold}
-              onChange={(e) => updateValue('fall_ax_threshold', e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <p className="text-xs text-gray-500 mt-1">Range: 0.5-5.0g (default: 2.2g)</p>
+          <div className="border-t border-gray-700 pt-4 mt-4">
+            <h3 className="text-sm font-semibold text-blue-400 mb-3">Fall Detection Settings</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Impact Threshold (g)
+                </label>
+                <input
+                  type="number"
+                  min="0.5"
+                  max="5.0"
+                  step="0.1"
+                  value={config.fall_ax_threshold}
+                  onChange={(e) => updateValue('fall_ax_threshold', e.target.value)}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Acceleration spike to trigger detection (0.5-5.0g, default: 2.2g)</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Stillness Threshold (g)
+                </label>
+                <input
+                  type="number"
+                  min="0.1"
+                  max="1.0"
+                  step="0.05"
+                  value={config.fall_motion_threshold}
+                  onChange={(e) => updateValue('fall_motion_threshold', e.target.value)}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Motion must drop below this to confirm fall (0.1-1.0g, default: 0.3g)</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Stillness Duration (ms)
+                </label>
+                <input
+                  type="number"
+                  min="200"
+                  max="5000"
+                  step="100"
+                  value={config.fall_stillness_ms}
+                  onChange={(e) => updateValue('fall_stillness_ms', e.target.value)}
+                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">How long person must stay still to confirm fall (200-5000ms, default: 1000ms)</p>
+              </div>
+            </div>
           </div>
 
           <div>
