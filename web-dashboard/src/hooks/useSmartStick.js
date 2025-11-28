@@ -99,7 +99,7 @@ export function useSmartStick() {
     try {
       const response = await deviceRef.current.updateConfig(config);
       if (response.ok) {
-        setCurrentConfig(config);
+        setCurrentConfig(prev => ({ ...prev, ...config }));
         toast.success('Configuration updated');
       } else {
         toast.error(`Config error: ${response.err}`);

@@ -23,10 +23,16 @@ function App() {
 
   const handleApplyThresholds = async (thresholds) => {
     try {
-      const newConfig = { ...currentConfig, ...thresholds };
-      const response = await updateConfig(newConfig);
+      console.log('Applying thresholds:', thresholds);
+      console.log('Current config:', currentConfig);
+      
+      const response = await updateConfig(thresholds);
+      console.log('Update response:', response);
+      
       if (response && response.ok) {
         toast.success('Fall detection thresholds updated!');
+      } else {
+        toast.error(`Failed to update: ${response?.err || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Failed to apply thresholds:', error);
