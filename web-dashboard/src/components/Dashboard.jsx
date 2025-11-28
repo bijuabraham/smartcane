@@ -1,12 +1,22 @@
+import { useMemo } from 'react';
 import { Bluetooth, BluetoothOff, Activity, Radio, CreditCard, Battery, Gauge, Settings, Cpu, Wifi, AlertTriangle, User, Bell, Clock, Target } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 
-export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts = [], onConnect, onDisconnect, onConfigOpen, onCalibrationOpen, onModeChange }) {
+export function Dashboard({ mode, connected, sensorData, sensorHistory, chartStartTime, alerts = [], onConnect, onDisconnect, onConfigOpen, onCalibrationOpen, onModeChange }) {
   const formatValue = (value) => {
     if (value === null || value === undefined) return 'N/A';
     if (typeof value === 'number') return value.toFixed(2);
     return value;
   };
+
+  const chartData = useMemo(() => {
+    if (!chartStartTime || sensorHistory.length === 0) return [];
+    
+    return sensorHistory.map(data => ({
+      ...data,
+      timeSeconds: Math.round((data.ts - chartStartTime) / 1000),
+    }));
+  }, [sensorHistory, chartStartTime]);
 
   const getAlertIcon = (alertType) => {
     switch (alertType) {
@@ -273,17 +283,21 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts =
               )}
             </div>
 
-            {sensorHistory.length > 0 && (
+            {chartStartTime && (
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-                <h3 className="text-xl font-semibold mb-4">IMU Acceleration History</h3>
+                <h3 className="text-xl font-semibold mb-4">IMU Acceleration History (1 minute window)</h3>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={sensorHistory}>
+                  <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis 
-                      dataKey="ts" 
+                      dataKey="timeSeconds" 
                       stroke="#9CA3AF"
                       tick={{ fill: '#9CA3AF' }}
-                      tickFormatter={(ts) => new Date(ts).toLocaleTimeString()}
+                      domain={[0, 60]}
+                      type="number"
+                      tickFormatter={(sec) => `${sec}s`}
+                      ticks={[0, 10, 20, 30, 40, 50, 60]}
+                      allowDataOverflow={true}
                     />
                     <YAxis 
                       stroke="#9CA3AF"
@@ -294,11 +308,12 @@ export function Dashboard({ mode, connected, sensorData, sensorHistory, alerts =
                     <Tooltip 
                       contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
                       labelStyle={{ color: '#9CA3AF' }}
+                      labelFormatter={(sec) => `Time: ${sec}s`}
                     />
                     <Legend wrapperStyle={{ color: '#9CA3AF' }} />
-                    <Line type="monotone" dataKey="imu.ax" stroke="#10B981" name="X" dot={false} isAnimationActive={false} />
-                    <Line type="monotone" dataKey="imu.ay" stroke="#3B82F6" name="Y" dot={false} isAnimationActive={false} />
-                    <Line type="monotone" dataKey="imu.az" stroke="#8B5CF6" name="Z" dot={false} isAnimationActive={false} />
+                    <Line type="monotone" dataKey="imu.ax" stroke="#10B981" name="X" dot={false} isAnimationActive={false} connectNulls={false} />
+                    <Line type="monotone" dataKey="imu.ay" stroke="#3B82F6" name="Y" dot={false} isAnimationActive={false} connectNulls={false} />
+                    <Line type="monotone" dataKey="imu.az" stroke="#8B5CF6" name="Z" dot={false} isAnimationActive={false} connectNulls={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

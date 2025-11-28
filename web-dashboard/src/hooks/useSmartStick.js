@@ -10,6 +10,7 @@ export function useSmartStick() {
   const [alerts, setAlerts] = useState([]);
   const [sensorHistory, setSensorHistory] = useState([]);
   const [currentConfig, setCurrentConfig] = useState(null);
+  const [chartStartTime, setChartStartTime] = useState(null);
   const deviceRef = useRef(null);
 
   useEffect(() => {
@@ -21,7 +22,11 @@ export function useSmartStick() {
     
     const handleSensorData = (data) => {
       setSensorData(data);
-      setSensorHistory(prev => [...prev.slice(-50), data]);
+      setSensorHistory(prev => {
+        const newData = [...prev, data];
+        // Keep only last 60 seconds of data (300 points at 200ms intervals)
+        return newData.slice(-300);
+      });
     };
 
     const handleAlert = (alert) => {
@@ -71,6 +76,8 @@ export function useSmartStick() {
     try {
       await deviceRef.current.connect();
       setConnected(true);
+      setChartStartTime(Date.now());
+      setSensorHistory([]);
       
       try {
         const config = await deviceRef.current.readConfig();
@@ -93,6 +100,7 @@ export function useSmartStick() {
     setSensorData(null);
     setSensorHistory([]);
     setCurrentConfig(null);
+    setChartStartTime(null);
   };
 
   const updateConfig = async (config) => {
@@ -126,6 +134,7 @@ export function useSmartStick() {
     alerts,
     sensorHistory,
     currentConfig,
+    chartStartTime,
     connection: deviceRef.current,
     connect,
     disconnect,
