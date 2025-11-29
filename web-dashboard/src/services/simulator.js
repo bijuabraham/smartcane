@@ -101,7 +101,9 @@ export class SmartStickSimulator {
         resolve(this.currentConfig || {
           sensor_period_ms: 200,
           obstacle_threshold_mm: 800,
-          fall_ax_threshold: 2.2,
+          fall_ax_threshold: 0.96,
+          fall_motion_threshold: 1.22,
+          fall_stillness_ms: 300,
           ble_tx_power: 7,
         });
       }, 2000);

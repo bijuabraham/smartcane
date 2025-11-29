@@ -5,9 +5,9 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
   const [config, setConfig] = useState({
     sensor_period_ms: 200,
     obstacle_threshold_mm: 800,
-    fall_ax_threshold: 2.2,
-    fall_motion_threshold: 0.3,
-    fall_stillness_ms: 1000,
+    fall_ax_threshold: 0.96,
+    fall_motion_threshold: 1.22,
+    fall_stillness_ms: 300,
     ble_tx_power: 7,
   });
 
@@ -16,9 +16,9 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
       setConfig({
         sensor_period_ms: initialConfig.sensor_period_ms ?? 200,
         obstacle_threshold_mm: initialConfig.obstacle_threshold_mm ?? 800,
-        fall_ax_threshold: Math.round((initialConfig.fall_ax_threshold ?? 2.2) * 100) / 100,
-        fall_motion_threshold: Math.round((initialConfig.fall_motion_threshold ?? 0.3) * 100) / 100,
-        fall_stillness_ms: initialConfig.fall_stillness_ms ?? 1000,
+        fall_ax_threshold: Math.round((initialConfig.fall_ax_threshold ?? 0.96) * 100) / 100,
+        fall_motion_threshold: Math.round((initialConfig.fall_motion_threshold ?? 1.22) * 100) / 100,
+        fall_stillness_ms: initialConfig.fall_stillness_ms ?? 300,
         ble_tx_power: initialConfig.ble_tx_power ?? 7,
       });
     }
@@ -30,9 +30,9 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
     const parsedConfig = {
       sensor_period_ms: parseInt(config.sensor_period_ms, 10) || 200,
       obstacle_threshold_mm: parseInt(config.obstacle_threshold_mm, 10) || 800,
-      fall_ax_threshold: parseFloat(config.fall_ax_threshold) || 2.2,
-      fall_motion_threshold: parseFloat(config.fall_motion_threshold) || 0.3,
-      fall_stillness_ms: parseInt(config.fall_stillness_ms, 10) || 1000,
+      fall_ax_threshold: parseFloat(config.fall_ax_threshold) || 0.96,
+      fall_motion_threshold: parseFloat(config.fall_motion_threshold) || 1.22,
+      fall_stillness_ms: parseInt(config.fall_stillness_ms, 10) || 300,
       ble_tx_power: parseInt(config.ble_tx_power, 10) || 7,
     };
     onSave(parsedConfig);
@@ -106,7 +106,7 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
                   onChange={(e) => updateValue('fall_ax_threshold', e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">Acceleration spike to trigger detection (0.5-20g, default: 2.2g)</p>
+                <p className="text-xs text-gray-500 mt-1">Acceleration spike to trigger detection (0.5-20g, default: 0.96g)</p>
               </div>
 
               <div>
@@ -122,7 +122,7 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
                   onChange={(e) => updateValue('fall_motion_threshold', e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">Motion must drop below this to confirm fall (0.1-2.0g, default: 0.3g)</p>
+                <p className="text-xs text-gray-500 mt-1">Motion must drop below this to confirm fall (0.1-2.0g, default: 1.22g)</p>
               </div>
 
               <div>
@@ -138,7 +138,7 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
                   onChange={(e) => updateValue('fall_stillness_ms', e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">How long person must stay still to confirm fall (200-5000ms, default: 1000ms)</p>
+                <p className="text-xs text-gray-500 mt-1">How long person must stay still to confirm fall (200-5000ms, default: 300ms)</p>
               </div>
             </div>
           </div>
