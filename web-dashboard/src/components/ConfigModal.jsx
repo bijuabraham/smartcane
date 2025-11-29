@@ -26,16 +26,21 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(config);
+    // Parse values on submit to ensure proper types
+    const parsedConfig = {
+      sensor_period_ms: parseInt(config.sensor_period_ms, 10) || 200,
+      obstacle_threshold_mm: parseInt(config.obstacle_threshold_mm, 10) || 800,
+      fall_ax_threshold: parseFloat(config.fall_ax_threshold) || 2.2,
+      fall_motion_threshold: parseFloat(config.fall_motion_threshold) || 0.3,
+      fall_stillness_ms: parseInt(config.fall_stillness_ms, 10) || 1000,
+      ble_tx_power: parseInt(config.ble_tx_power, 10) || 7,
+    };
+    onSave(parsedConfig);
   };
 
   const updateValue = (key, value) => {
-    // Use parseInt for integer fields, parseFloat for decimal fields
-    const integerFields = ['sensor_period_ms', 'obstacle_threshold_mm', 'fall_stillness_ms', 'ble_tx_power'];
-    const parsedValue = integerFields.includes(key) 
-      ? parseInt(value, 10) || 0 
-      : parseFloat(value) || 0;
-    setConfig(prev => ({ ...prev, [key]: parsedValue }));
+    // Store raw value to allow typing, parse on submit
+    setConfig(prev => ({ ...prev, [key]: value }));
   };
 
   return (
