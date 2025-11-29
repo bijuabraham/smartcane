@@ -26,7 +26,16 @@ export function useSmartStick() {
         ...data,
         ts: Date.now()
       };
-      setSensorData(dataWithTimestamp);
+      
+      // Preserve battery data between updates (battery only sent every 10 seconds)
+      setSensorData(prev => {
+        const merged = { ...dataWithTimestamp };
+        if (!merged.battery && prev?.battery) {
+          merged.battery = prev.battery;
+        }
+        return merged;
+      });
+      
       setSensorHistory(prev => {
         const newData = [...prev, dataWithTimestamp];
         // Keep only last 60 seconds of data (300 points at 200ms intervals)
