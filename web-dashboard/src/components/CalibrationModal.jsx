@@ -78,7 +78,7 @@ export default function CalibrationModal({ isOpen, onClose, connection, onApplyT
   const applyThresholds = () => {
     if (results && onApplyThresholds) {
       onApplyThresholds({
-        fall_ax_threshold: Math.round(results.suggested_impact_threshold * 10) / 10,
+        fall_ax_threshold: Math.round(results.suggested_impact_threshold * 100) / 100,
         fall_motion_threshold: Math.round(results.suggested_motion_threshold * 100) / 100,
       });
     }

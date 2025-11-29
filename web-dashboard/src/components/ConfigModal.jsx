@@ -16,7 +16,7 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
       setConfig({
         sensor_period_ms: initialConfig.sensor_period_ms ?? 200,
         obstacle_threshold_mm: initialConfig.obstacle_threshold_mm ?? 800,
-        fall_ax_threshold: Math.round((initialConfig.fall_ax_threshold ?? 2.2) * 10) / 10,
+        fall_ax_threshold: Math.round((initialConfig.fall_ax_threshold ?? 2.2) * 100) / 100,
         fall_motion_threshold: Math.round((initialConfig.fall_motion_threshold ?? 0.3) * 100) / 100,
         fall_stillness_ms: initialConfig.fall_stillness_ms ?? 1000,
         ble_tx_power: initialConfig.ble_tx_power ?? 7,
@@ -96,7 +96,7 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
                   type="number"
                   min="0.5"
                   max="20.0"
-                  step="0.1"
+                  step="0.01"
                   value={config.fall_ax_threshold}
                   onChange={(e) => updateValue('fall_ax_threshold', e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -112,7 +112,7 @@ export function ConfigModal({ onClose, onSave, initialConfig = {} }) {
                   type="number"
                   min="0.1"
                   max="2.0"
-                  step="0.05"
+                  step="0.01"
                   value={config.fall_motion_threshold}
                   onChange={(e) => updateValue('fall_motion_threshold', e.target.value)}
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
