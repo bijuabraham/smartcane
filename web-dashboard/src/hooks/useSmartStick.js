@@ -3,6 +3,8 @@ import { SmartStickBLE } from '../services/bluetooth';
 import { SmartStickSimulator } from '../services/simulator';
 import toast from 'react-hot-toast';
 
+const CHART_WINDOW_MS = 60000; // 60 seconds
+
 export function useSmartStick() {
   const [mode, setMode] = useState('simulator');
   const [connected, setConnected] = useState(false);
@@ -12,6 +14,7 @@ export function useSmartStick() {
   const [currentConfig, setCurrentConfig] = useState(null);
   const [chartStartTime, setChartStartTime] = useState(null);
   const deviceRef = useRef(null);
+  const chartStartTimeRef = useRef(null);
 
   useEffect(() => {
     if (mode === 'hardware') {
@@ -21,10 +24,19 @@ export function useSmartStick() {
     }
     
     const handleSensorData = (data) => {
-      // Add receive timestamp for consistent charting (hardware sends millis, simulator sends Date.now)
+      const now = Date.now();
+      
+      // Check if we've exceeded 60 seconds - reset chart
+      if (chartStartTimeRef.current && (now - chartStartTimeRef.current) >= CHART_WINDOW_MS) {
+        chartStartTimeRef.current = now;
+        setChartStartTime(now);
+        setSensorHistory([]);
+      }
+      
+      // Add receive timestamp for consistent charting
       const dataWithTimestamp = {
         ...data,
-        ts: Date.now()
+        ts: now
       };
       
       // Preserve battery data between updates (battery only sent every 10 seconds)
@@ -36,11 +48,7 @@ export function useSmartStick() {
         return merged;
       });
       
-      setSensorHistory(prev => {
-        const newData = [...prev, dataWithTimestamp];
-        // Keep only last 60 seconds of data (300 points at 200ms intervals)
-        return newData.slice(-300);
-      });
+      setSensorHistory(prev => [...prev, dataWithTimestamp]);
     };
 
     const handleAlert = (alert) => {
@@ -90,7 +98,9 @@ export function useSmartStick() {
     try {
       await deviceRef.current.connect();
       setConnected(true);
-      setChartStartTime(Date.now());
+      const now = Date.now();
+      chartStartTimeRef.current = now;
+      setChartStartTime(now);
       setSensorHistory([]);
       
       try {
@@ -114,6 +124,7 @@ export function useSmartStick() {
     setSensorData(null);
     setSensorHistory([]);
     setCurrentConfig(null);
+    chartStartTimeRef.current = null;
     setChartStartTime(null);
   };
 
