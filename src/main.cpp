@@ -167,9 +167,10 @@ void update_sensors(unsigned long now) {
   ToFData tof = tof_read();
   BatteryData battery;
   
-  if (now - last_battery_read >= BATTERY_READ_PERIOD_MS) {
+  // Read battery immediately on first call (last_battery_read == 0), then every 10 seconds
+  if (last_battery_read == 0 || (now - last_battery_read >= BATTERY_READ_PERIOD_MS)) {
     battery = battery_read();
-    last_battery_read = now;  // Update timestamp when we actually read
+    last_battery_read = now;
   } else {
     battery.valid = false;
   }
