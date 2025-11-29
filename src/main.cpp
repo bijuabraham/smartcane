@@ -106,10 +106,6 @@ void loop() {
     update_rfid(now);
   }
   
-  if (now - last_battery_read >= BATTERY_READ_PERIOD_MS) {
-    last_battery_read = now;
-  }
-  
 #ifdef LOW_POWER
   if (LIGHT_SLEEP_ENABLED && !ble_is_connected()) {
     uint32_t sleep_time = min(
@@ -173,6 +169,7 @@ void update_sensors(unsigned long now) {
   
   if (now - last_battery_read >= BATTERY_READ_PERIOD_MS) {
     battery = battery_read();
+    last_battery_read = now;  // Update timestamp when we actually read
   } else {
     battery.valid = false;
   }
