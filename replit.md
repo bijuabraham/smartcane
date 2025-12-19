@@ -1,7 +1,7 @@
 # Smart Walking Stick Firmware
 
 ## Project Overview
-Production-ready Arduino firmware for ESP32-S3 microcontroller that powers an intelligent walking stick with advanced safety features including fall detection, obstacle avoidance, RFID tracking, and emergency SOS alerts. The firmware uses NimBLE for wireless communication and supports real-time sensor data streaming over BLE.
+Production-ready Arduino firmware for ESP32-S3 microcontroller that powers an intelligent walking stick with advanced safety features including fall detection, obstacle avoidance, RFID tracking, and emergency SOS alerts. The firmware uses NimBLE for wireless communication and supports real-time sensor data streaming over BLE..
 
 ## Project Type
 **Full-Stack Embedded IoT System** 
